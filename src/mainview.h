@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QProcess>
+#include <QVector>
 
 namespace ui
 {

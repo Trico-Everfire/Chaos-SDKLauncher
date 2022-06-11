@@ -1,8 +1,5 @@
 #include "mainview.h"
 
-#include <QDebug>
-#include <QVector>
-
 using namespace ui;
 
 // General list things
@@ -29,6 +26,14 @@ static QVector<MediaSection_t> Sections(
 			{ "Face Poser", ":/resource/logo.png" },
 			{ "P2:CE (Tools Mode)", ":/resource/logo.png" },
 			{ "P2:CE", ":/resource/logo.png" }
+		},
+	},
+	{
+		"Documentation",
+		{
+			{ "Valve Developer Community", ":/resource/logo.png" },
+			{ "Chaos Wiki", ":/resource/logo.png" },
+			{ "Momentum Wiki", ":/resource/logo.png" }
 		}
 	}
 });
@@ -37,6 +42,7 @@ static QVector<MediaSection_t> Sections(
 CMainView::CMainView( QWidget *pParent ) : QDialog( pParent )
 {
 	auto pLayout = new QVBoxLayout( this );
+	pLayout->setObjectName( "SDKLayout" );
 
 	for ( int i = 0; i < Sections.count(); i++ )
 	{
@@ -54,9 +60,13 @@ CMainView::CMainView( QWidget *pParent ) : QDialog( pParent )
 			pButton->setIcon( QIcon( item.icon ) );
 			pButton->setText( item.name );
 			pButton->setObjectName( "MediaItem" );
+
 			pLayout->addWidget( pButton );
 		}
 	}
+
+	// Set focus so we don't have focus directly on the top most button
+	this->setFocus( Qt::NoFocusReason );
 
 	this->setFixedWidth( 250 );
 	this->setFixedHeight( this->sizeHint().height() );

@@ -1,13 +1,26 @@
 QLabel#Header
 {
 	color: #fff;
-	font: bold 14px;
+	font: bold 10px;
+	padding-left: 15px;
+	padding-bottom: 1px;
+
+	/* we have to do this because qt funny */
+	border: 0px solid transparent;
+	border-bottom: 1px solid black;
+}
+
+QDialog
+{
+	background-color: #373737;
 }
 
 QPushButton#MediaItem
 {
 	text-align: left;
-	padding: 4px;
+	/*padding: 4px;*/
+
+	background-color: transparent;
 
 	/*
 	background-color: transparent;
@@ -18,7 +31,12 @@ QPushButton#MediaItem
 	*/
 }
 
-QDialog
+QPushButton:hover#MediaItem
 {
-	background-color: #373737;
+	background-color: #2D2D2D;
+}
+
+QPushButton:focus#MediaItem
+{
+	background-color: #2D2D2D;
 }
