@@ -1,5 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="resource">
 	<file>style.qss</file>
+	<file>logo.png</file>
 </qresource>
 </RCC>

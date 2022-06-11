@@ -34,6 +34,9 @@ set(CMAKE_AUTORCC ON)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(SRC
+src/mainview.h
+src/mainview.cpp
+
 src/main.cpp)
 
 find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui)

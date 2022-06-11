@@ -1,0 +1,24 @@
+QLabel#Header
+{
+	color: #fff;
+	font: bold 14px;
+}
+
+QPushButton#MediaItem
+{
+	text-align: left;
+	padding: 4px;
+
+	/*
+	background-color: transparent;
+    background-color : rgb( 49, 69, 80 );
+    border: 2px solid rgb( 143, 171, 187 );
+    border-radius: 5px;
+	padding: 5px;
+	*/
+}
+
+QDialog
+{
+	background-color: #373737;
+}
