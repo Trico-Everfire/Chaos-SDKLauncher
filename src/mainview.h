@@ -6,6 +6,9 @@
 #include <QVBoxLayout>
 #include <QProcess>
 #include <QVector>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QDebug>
 
 namespace ui
 {
@@ -15,5 +18,9 @@ namespace ui
 
 	public:
 		CMainView( QWidget *pParent );
+
+	private:
+		void OpenUrl( QString url );
+		void OpenProcess( QString execName, QStringList params );
 	};
 }

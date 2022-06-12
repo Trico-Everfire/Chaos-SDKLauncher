@@ -8,6 +8,9 @@ struct MediaItem_t
 {
 	QString name;
 	QString icon;
+	QString urlType;
+	QString url;
+	QStringList args;
 };
 
 struct MediaSection_t
@@ -21,19 +24,19 @@ static QVector<MediaSection_t> Sections(
 	{
 		"Applications",
 		{
-			{ "Hammer World Editor", ":/resource/logo.png" },
-			{ "Model Viewer", ":/resource/logo.png" },
-			{ "Face Poser", ":/resource/logo.png" },
-			{ "P2:CE (Tools Mode)", ":/resource/logo.png" },
-			{ "P2:CE", ":/resource/logo.png" }
+			{ "Hammer World Editor", ":/resource/hammer.png", "process", "hammer.exe", { "" } },
+			{ "Model Viewer", ":/resource/modelviewer.png", "process", "hlmv.exe", { "-game p2ce" } },
+			{ "Face Poser", ":/resource/faceposer.png", "process", "hlfaceposer.exe", { "-game p2ce" } },
+			{ "P2:CE (Tools Mode)", ":/resource/logo_tools.png", "process", "chaos.exe", { "-game p2ce", "-tools" } },
+			{ "P2:CE", ":/resource/logo.png", "process", "chaos.exe", { "-game p2ce" } }
 		},
 	},
 	{
 		"Documentation",
 		{
-			{ "Valve Developer Community", ":/resource/logo.png" },
-			{ "Chaos Wiki", ":/resource/logo.png" },
-			{ "Momentum Wiki", ":/resource/logo.png" }
+			{ "Valve Developer Community", ":/resource/vdc.png", "url", "https://developer.valvesoftware.com", { "" } },
+			{ "Chaos Wiki", ":/resource/chaos.png", "url", "https://chaosinitiative.github.io/Wiki/", { "" } },
+			{ "Momentum Wiki", ":/resource/momentum.png", "url", "https://docs.momentum-mod.org/", { "" } }
 		}
 	}
 });
@@ -62,6 +65,17 @@ CMainView::CMainView( QWidget *pParent ) : QDialog( pParent )
 			pButton->setObjectName( "MediaItem" );
 
 			pLayout->addWidget( pButton );
+
+			connect(pButton, &QPushButton::released, this,
+				[=]()
+				{
+						 if ( item.urlType == "url" )
+							 OpenUrl( item.url );
+						 else if ( item.urlType == "process" )
+							 OpenProcess( item.url, item.args );
+						 else
+							 qDebug() << "Unknown URL Type: " << item.urlType;
+				});
 		}
 	}
 
@@ -70,4 +84,16 @@ CMainView::CMainView( QWidget *pParent ) : QDialog( pParent )
 
 	this->setFixedWidth( 250 );
 	this->setFixedHeight( this->sizeHint().height() );
+}
+
+void CMainView::OpenUrl( QString url )
+{
+	QDesktopServices::openUrl( QUrl( url ) );
+}
+
+void CMainView::OpenProcess( QString execName, QStringList params )
+{
+	auto pProcess = new QProcess( this );
+	
+	pProcess->start( execName, params);
 }
