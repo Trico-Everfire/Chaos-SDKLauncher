@@ -7,7 +7,7 @@ QLabel#Header
 
 	/* we have to do this because qt funny */
 	border: 0px solid transparent;
-	border-bottom: 1px solid black;
+	border-bottom: 1px solid #fff;
 }
 
 QDialog
@@ -17,10 +17,12 @@ QDialog
 
 QPushButton#MediaItem
 {
+	color: #fff;
 	text-align: left;
-	/*padding: 4px;*/
+	padding: 4px;
 
 	background-color: transparent;
+	border: 0px;
 
 	/*
 	background-color: transparent;
@@ -34,9 +36,11 @@ QPushButton#MediaItem
 QPushButton:hover#MediaItem
 {
 	background-color: #2D2D2D;
+	border: 0px;
 }
 
 QPushButton:focus#MediaItem
 {
 	background-color: #2D2D2D;
+    border: 0px;
 }
