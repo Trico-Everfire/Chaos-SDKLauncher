@@ -1,12 +1,23 @@
 #include <QApplication>
-#include <QDialog>
+#include <QIcon>
+#include <QFile>
+
+#include "mainview.h"
 
 int main(int argc, char** argv)
 {
 	QApplication app( argc, argv );
 
-	auto pDialog = new QDialog( nullptr );
-	pDialog->setWindowTitle( "Hello world!" );
+	QApplication::setAttribute( Qt::AA_DisableWindowContextHelpButton );
+	QApplication::setWindowIcon( QIcon( ":/resource/logo.png" ) );
+
+	QFile file( ":/resource/style.qss" );
+	file.open( QFile::ReadOnly );
+	QString styleSheet = QLatin1String( file.readAll() );
+	qApp->setStyleSheet( styleSheet );
+
+	auto pDialog = new ui::CMainView( nullptr );
+	pDialog->setWindowTitle( "P2:CE SDK Launcher" );
 	pDialog->show();
 
 	return QApplication::exec();
