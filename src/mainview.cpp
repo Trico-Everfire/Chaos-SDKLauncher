@@ -21,8 +21,6 @@ CMainView::CMainView( QWidget *pParent ) :
 
 	for ( auto it = JSONConfig.begin(); it != JSONConfig.end(); it++ )
 	{
-		// MediaSection_t section = Sections.at( it.key() );
-
 		auto pHeader = new QLabel( it.key(), this );
 		pHeader->setObjectName( "Header" );
 		pLayout->addWidget( pHeader );
@@ -73,7 +71,5 @@ void CMainView::OpenUrl( QString url )
 void CMainView::OpenProcess( QString execName, QStringList params )
 {
 	auto pProcess = new QProcess( this );
-	pProcess->setArguments( params );
-	pProcess->setProgram( execName );
-	pProcess->start();
+	pProcess->start(execName,params);
 }

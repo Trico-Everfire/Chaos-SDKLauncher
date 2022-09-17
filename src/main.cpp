@@ -1,16 +1,12 @@
-#include <QApplication>
-#include <QIcon>
-#include <QFile>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
 #include "config.h"
-
 #include "mainview.h"
 
-QJsonDocument defaultConfig();
+#include <QApplication>
+#include <QFile>
+#include <QIcon>
+#include <QJsonDocument>
 
-int main(int argc, char** argv)
+int main( int argc, char **argv )
 {
 	QApplication app( argc, argv );
 
@@ -22,14 +18,14 @@ int main(int argc, char** argv)
 	QString styleSheet = QLatin1String( file.readAll() );
 	qApp->setStyleSheet( styleSheet );
 
-	QFile configFile("./config.json");
-	if(!configFile.exists()){
-		configFile.open(QFile::WriteOnly);
+	QFile configFile( "./config.json" );
+	if ( !configFile.exists() )
+	{
+		configFile.open( QFile::WriteOnly );
 		QJsonDocument doc = defaultConfig();
-		configFile.write(doc.toJson());
+		configFile.write( doc.toJson() );
 		configFile.close();
 	}
-
 
 	auto pDialog = new ui::CMainView( nullptr );
 	pDialog->setWindowTitle( "P2:CE SDK Launcher" );
