@@ -17,3 +17,4 @@ CMakeCache.txt
 
 # CMake with CLion
 cmake-build-*/
+libs/steam
