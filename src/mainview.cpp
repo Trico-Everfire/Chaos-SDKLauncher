@@ -1,81 +1,60 @@
 #include "mainview.h"
 
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+
 using namespace ui;
 
-// General list things
-
-struct MediaItem_t
-{
-	QString name;
-	QString icon;
-	QString urlType;
-	QString url;
-	QStringList args;
-};
-
-struct MediaSection_t
-{
-	QString header;
-	QVector<MediaItem_t> items;
-};
-
-static QVector<MediaSection_t> Sections(
-{
-	{
-		"Applications",
-		{
-			{ "Hammer World Editor", ":/resource/hammer.png", "process", "hammer.exe", { "" } },
-			{ "Model Viewer", ":/resource/modelviewer.png", "process", "hlmv.exe", { "-game p2ce" } },
-			{ "Face Poser", ":/resource/faceposer.png", "process", "hlfaceposer.exe", { "-game p2ce" } },
-			{ "P2:CE (Tools Mode)", ":/resource/logo_tools.png", "process", "chaos.exe", { "-game p2ce", "-tools" } },
-			{ "P2:CE", ":/resource/logo.png", "process", "chaos.exe", { "-game p2ce" } }
-		},
-	},
-	{
-		"Documentation",
-		{
-			{ "Valve Developer Community", ":/resource/vdc.png", "url", "https://developer.valvesoftware.com", { "" } },
-			{ "Chaos Wiki", ":/resource/chaos.png", "url", "https://chaosinitiative.github.io/Wiki/", { "" } },
-			{ "Momentum Wiki", ":/resource/momentum.png", "url", "https://docs.momentum-mod.org/", { "" } }
-		}
-	}
-});
-
-
-CMainView::CMainView( QWidget *pParent ) : QDialog( pParent )
+CMainView::CMainView( QWidget *pParent ) :
+	QDialog( pParent )
 {
 	auto pLayout = new QVBoxLayout( this );
 	pLayout->setObjectName( "SDKLayout" );
 
-	for ( int i = 0; i < Sections.count(); i++ )
-	{
-		MediaSection_t section = Sections.at( i );
+	QFile config( "./config.json" );
+	config.open( QFile::ReadOnly );
+	QJsonDocument JSONConfigDocument = QJsonDocument::fromJson( config.readAll() );
+	config.close();
+	QJsonObject JSONConfig = JSONConfigDocument.object();
 
-		auto pHeader = new QLabel( section.header, this );
+	for ( auto it = JSONConfig.begin(); it != JSONConfig.end(); it++ )
+	{
+		// MediaSection_t section = Sections.at( it.key() );
+
+		auto pHeader = new QLabel( it.key(), this );
 		pHeader->setObjectName( "Header" );
 		pLayout->addWidget( pHeader );
-
-		for ( int j = 0; j < section.items.count(); j++ )
+		QJsonArray arr = it.value().toArray();
+		for ( int i = 0; i < arr.size(); i++ )
 		{
-			MediaItem_t item = section.items.at( j );
+			auto item = arr.at( i ).toObject();
 
 			QPushButton *pButton = new QPushButton( this );
-			pButton->setIcon( QIcon( item.icon ) );
-			pButton->setText( item.name );
+			pButton->setIcon( QIcon( item["icon"].toString() ) );
+			pButton->setText( item["name"].toString() );
 			pButton->setObjectName( "MediaItem" );
 
 			pLayout->addWidget( pButton );
+			connect( pButton, &QPushButton::pressed, this,
+					 [=]()
+					 {
+						 auto arr = item["args"].toArray().toVariantList();
+						 QStringList args;
 
-			connect(pButton, &QPushButton::released, this,
-				[=]()
-				{
-						 if ( item.urlType == "url" )
-							 OpenUrl( item.url );
-						 else if ( item.urlType == "process" )
-							 OpenProcess( item.url, item.args );
+						 foreach( QVariant vItem, arr )
+						 {
+							 args << vItem.toString();
+						 }
+
+						 if ( item["urlType"].toString() == "url" )
+							 OpenUrl( item["url"].toString() );
+						 else if ( item["urlType"].toString() == "process" )
+							 OpenProcess( item["url"].toString(), args );
 						 else
-							 qDebug() << "Unknown URL Type: " << item.urlType;
-				});
+							 qDebug() << "Unknown URL Type: " << item["urlType"].toString();
+					 } );
 		}
 	}
 
@@ -94,6 +73,7 @@ void CMainView::OpenUrl( QString url )
 void CMainView::OpenProcess( QString execName, QStringList params )
 {
 	auto pProcess = new QProcess( this );
-	
-	pProcess->start( execName, params);
+	pProcess->setArguments( params );
+	pProcess->setProgram( execName );
+	pProcess->start();
 }

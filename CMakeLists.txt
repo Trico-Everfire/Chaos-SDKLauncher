@@ -37,11 +37,12 @@ set(SRC
 src/mainview.h
 src/mainview.cpp
 
-src/main.cpp)
+src/main.cpp src/config.h)
 
 find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui)
 	
 add_executable(sdklauncher ${SRC} res/resource.qrc)
+
 target_link_libraries(sdklauncher PRIVATE Qt5::Widgets Qt5::Core Qt5::Gui)
 target_include_directories(sdklauncher PRIVATE ${QT_INCLUDE} ${QT_INCLUDE}/QtWidgets ${QT_INCLUDE}/QtGui ${QT_INCLUDE}/QtCore)
 
