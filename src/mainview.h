@@ -1,14 +1,14 @@
 #pragma once
 
-#include <QDialog>
-#include <QPushButton>
-#include <QLabel>
-#include <QVBoxLayout>
-#include <QProcess>
-#include <QVector>
-#include <QDesktopServices>
-#include <QUrl>
 #include <QDebug>
+#include <QDesktopServices>
+#include <QDialog>
+#include <QLabel>
+#include <QProcess>
+#include <QPushButton>
+#include <QUrl>
+#include <QVBoxLayout>
+#include <QVector>
 
 namespace ui
 {
@@ -23,4 +23,4 @@ namespace ui
 		void OpenUrl( QString url );
 		void OpenProcess( QString execName, QStringList params );
 	};
-}
+} // namespace ui
