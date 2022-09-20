@@ -1,5 +1,7 @@
 #include "mainview.h"
 
+#include "config.h"
+
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -13,10 +15,22 @@ CMainView::CMainView( QWidget *pParent ) :
 	auto pLayout = new QVBoxLayout( this );
 	pLayout->setObjectName( "SDKLayout" );
 
-	QFile config( "./config.json" );
-	config.open( QFile::ReadOnly );
-	QJsonDocument JSONConfigDocument = QJsonDocument::fromJson( config.readAll() );
-	config.close();
+	QFile configFile( "./config.json" );
+	QJsonDocument JSONConfigDocument;
+	if ( !configFile.exists() )
+	{
+		configFile.open( QFile::WriteOnly );
+		JSONConfigDocument = defaultConfig();
+		configFile.write( JSONConfigDocument.toJson() );
+		configFile.close();
+	}
+	else
+	{
+		configFile.open( QFile::ReadOnly );
+		JSONConfigDocument = QJsonDocument::fromJson( configFile.readAll() );
+		configFile.close();
+	}
+
 	QJsonObject JSONConfig = JSONConfigDocument.object();
 
 	for ( auto it = JSONConfig.begin(); it != JSONConfig.end(); it++ )
@@ -71,5 +85,5 @@ void CMainView::OpenUrl( QString url )
 void CMainView::OpenProcess( QString execName, QStringList params )
 {
 	auto pProcess = new QProcess( this );
-	pProcess->start(execName,params);
+	pProcess->start( execName, params );
 }

@@ -57,7 +57,7 @@ QJsonDocument defaultConfig()
 			appItems1["url"] = item.url;
 			QJsonArray arguments1;
 
-			appItems1["args"] = QJsonArray::fromStringList(item.args);
+			appItems1["args"] = QJsonArray::fromStringList( item.args );
 			applications.append( appItems1 );
 		}
 		root[section.header] = applications;
