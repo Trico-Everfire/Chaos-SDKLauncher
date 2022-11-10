@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 project(sdklauncher CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Qt
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 	set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/install" CACHE PATH "..." FORCE)
 endif()
@@ -23,31 +24,36 @@ if(WIN32)
 	else()
 		message(FATAL_ERROR "--!@ Please define your QT install dir with -DQT_BASEDIR=C:/your/qt5/here")
 	endif()
-endif()	
+endif()
 
 message("Using ${QT_INCLUDE} as our Qt include dir")
+find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui)
+list(APPEND LINK_LIBS Qt5::Widgets Qt5::Core Qt5::Gui keyvalues SAPP)
+list(APPEND INC_DIRS ${QT_INCLUDE} ${QT_INCLUDE}/QtWidgets ${QT_INCLUDE}/QtGui ${QT_INCLUDE}/QtCore)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+# Main Application
+set(SRC
+		src/mainview.h
+		src/mainview.cpp
+
+		src/main.cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-set(SRC
-src/mainview.h
-src/mainview.cpp
-
-src/main.cpp src/config.h)
-
-find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui)
-	
-add_executable(sdklauncher ${SRC} res/resource.qrc)
-
-target_link_libraries(sdklauncher PRIVATE Qt5::Widgets Qt5::Core Qt5::Gui)
-target_include_directories(sdklauncher PRIVATE ${QT_INCLUDE} ${QT_INCLUDE}/QtWidgets ${QT_INCLUDE}/QtGui ${QT_INCLUDE}/QtCore)
-
+add_executable(${PROJECT_NAME} ${SRC} res/resource.qrc)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBS})
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/SpeedyKeyV")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/SAPP")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/SpeedyKeyV")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/SAPP")
+target_include_directories(${PROJECT_NAME} PRIVATE ${INC_DIRS})
 
 if(WIN32)
 	# Set up the debugger so it can run the program without copying a million dlls
-	set_target_properties(sdklauncher PROPERTIES VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${QT_BASEDIR}/bin;")
+	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${QT_BASEDIR}/bin;")
+
 endif()
+

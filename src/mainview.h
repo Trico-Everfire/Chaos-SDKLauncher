@@ -15,7 +15,7 @@ namespace ui
 	class CMainView : public QDialog
 	{
 		Q_OBJECT;
-
+		QString m_pInstallDir;
 	public:
 		CMainView( QWidget *pParent );
 

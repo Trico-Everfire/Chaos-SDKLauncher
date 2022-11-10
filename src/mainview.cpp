@@ -1,5 +1,6 @@
 #include "mainview.h"
 
+#include "FilesystemSearchProvider.h"
 #include "config.h"
 
 #include <QFile>
@@ -12,6 +13,11 @@ using namespace ui;
 CMainView::CMainView( QWidget *pParent ) :
 	QDialog( pParent )
 {
+	CFileSystemSearchProvider provider;
+	char* installDir = new char[1048];
+	provider.GetAppInstallDir(440000,installDir,1048);
+	m_pInstallDir = QString(installDir);
+	delete[] installDir;
 	auto pLayout = new QVBoxLayout( this );
 	pLayout->setObjectName( "SDKLayout" );
 
@@ -59,17 +65,15 @@ CMainView::CMainView( QWidget *pParent ) :
 						 {
 							 args << vItem.toString();
 						 }
-
 						 if ( item["urlType"].toString() == "url" )
 							 OpenUrl( item["url"].toString() );
 						 else if ( item["urlType"].toString() == "process" )
-							 OpenProcess( item["url"].toString(), args );
+							 OpenProcess( item["url"].toString().replace("${INSTALLDIR}",m_pInstallDir), args.replaceInStrings("${INSTALLDIR}",m_pInstallDir) );
 						 else
 							 qDebug() << "Unknown URL Type: " << item["urlType"].toString();
 					 } );
 		}
 	}
-
 	// Set focus so we don't have focus directly on the top most button
 	this->setFocus( Qt::NoFocusReason );
 
@@ -86,4 +90,5 @@ void CMainView::OpenProcess( QString execName, QStringList params )
 {
 	auto pProcess = new QProcess( this );
 	pProcess->start( execName, params );
+
 }
