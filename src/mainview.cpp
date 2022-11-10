@@ -14,9 +14,9 @@ CMainView::CMainView( QWidget *pParent ) :
 	QDialog( pParent )
 {
 	CFileSystemSearchProvider provider;
-	char* installDir = new char[1048];
-	provider.GetAppInstallDir(440000,installDir,1048);
-	m_pInstallDir = QString(installDir);
+	char *installDir = new char[1048];
+	provider.GetAppInstallDir( 440000, installDir, 1048 );
+	m_pInstallDir = QString( installDir );
 	delete[] installDir;
 	auto pLayout = new QVBoxLayout( this );
 	pLayout->setObjectName( "SDKLayout" );
@@ -68,7 +68,7 @@ CMainView::CMainView( QWidget *pParent ) :
 						 if ( item["urlType"].toString() == "url" )
 							 OpenUrl( item["url"].toString() );
 						 else if ( item["urlType"].toString() == "process" )
-							 OpenProcess( item["url"].toString().replace("${INSTALLDIR}",m_pInstallDir), args.replaceInStrings("${INSTALLDIR}",m_pInstallDir) );
+							 OpenProcess( item["url"].toString().replace( "${INSTALLDIR}", m_pInstallDir ), args.replaceInStrings( "${INSTALLDIR}", m_pInstallDir ) );
 						 else
 							 qDebug() << "Unknown URL Type: " << item["urlType"].toString();
 					 } );
@@ -90,5 +90,4 @@ void CMainView::OpenProcess( QString execName, QStringList params )
 {
 	auto pProcess = new QProcess( this );
 	pProcess->start( execName, params );
-
 }
