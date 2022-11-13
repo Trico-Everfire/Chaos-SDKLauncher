@@ -7,8 +7,8 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QScrollArea>
 #include <QMessageBox>
+#include <QScrollArea>
 
 using namespace ui;
 
@@ -17,21 +17,20 @@ CMainView::CMainView( QWidget *pParent ) :
 {
 	CFileSystemSearchProvider provider;
 	char *installDir = new char[1048];
-	provider.GetAppInstallDir( qgetenv("SteamAppId").toInt(), installDir, 1048 );
+	provider.GetAppInstallDir( qgetenv( "SteamAppId" ).toInt(), installDir, 1048 );
 	m_pInstallDir = QString( installDir );
 	delete[] installDir;
-
 
 	auto pLayout = new QGridLayout( this );
 	pLayout->setObjectName( "SDKLayout" );
 
 	auto scrollArea = new QScrollArea();
-	scrollArea->setAlignment(Qt::AlignTop);
-	auto pLayout2 = new QVBoxLayout(scrollArea);
-	pLayout2->setAlignment(Qt::AlignTop);
+	scrollArea->setAlignment( Qt::AlignTop );
+	auto pLayout2 = new QVBoxLayout( scrollArea );
+	pLayout2->setAlignment( Qt::AlignTop );
 	pLayout2->setObjectName( "SDKItemLayout" );
 
-	pLayout->addWidget(scrollArea,0,0);
+	pLayout->addWidget( scrollArea, 0, 0 );
 
 	QFile configFile( "./config.json" );
 	QJsonDocument JSONConfigDocument;
@@ -41,7 +40,7 @@ CMainView::CMainView( QWidget *pParent ) :
 		configFile.write( JSONConfigDocument.toJson() );
 		configFile.close();
 	}
-	else if ( configFile.open (QFile::ReadOnly ) )
+	else if ( configFile.open( QFile::ReadOnly ) )
 	{
 		JSONConfigDocument = QJsonDocument::fromJson( configFile.readAll() );
 		configFile.close();
@@ -60,7 +59,7 @@ CMainView::CMainView( QWidget *pParent ) :
 		pLayout2->addWidget( pHeader );
 		QJsonArray arr = it.value().toArray();
 
-		for (auto && i : arr)
+		for ( auto &&i : arr )
 		{
 			auto item = i.toObject();
 
@@ -89,25 +88,22 @@ CMainView::CMainView( QWidget *pParent ) :
 					qDebug() << "Unknown URL Type: " << item["urlType"].toString();
 			};
 
-			connect( pButton, &QPushButton::pressed, this, pushButton);
+			connect( pButton, &QPushButton::pressed, this, pushButton );
 		}
 	}
 
-	scrollArea->setFixedSize(pLayout2->sizeHint());
-	pLayout->setAlignment(Qt::AlignTop);
+	scrollArea->setFixedSize( pLayout2->sizeHint() );
+	pLayout->setAlignment( Qt::AlignTop );
 	// Set focus so we don't have focus directly on the top most button
 	this->setFocus( Qt::NoFocusReason );
-
-
-	//this->setFixedHeight( this->sizeHint().height() * 2 );
 }
 
-void CMainView::OpenUrl( const QString& url )
+void CMainView::OpenUrl( const QString &url )
 {
 	QDesktopServices::openUrl( QUrl( url ) );
 }
 
-void CMainView::OpenProcess( const QString& execName, const QStringList& params )
+void CMainView::OpenProcess( const QString &execName, const QStringList &params )
 {
 	auto pProcess = new QProcess( this );
 	pProcess->start( execName, params );
