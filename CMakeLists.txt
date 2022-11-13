@@ -35,25 +35,51 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+option(USE_STEAM "Uses steam" OFF)
+
+# Steam
+if(USE_STEAM)
+	set(STEAM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/steam)
+	add_library(steam_api64 SHARED IMPORTED)
+	include_directories("${STEAM_DIR}/public/steam")
+	list(APPEND LINK_DIRS "${STEAM_DIR}/redistributable_bin")
+	if (WIN32)
+		list(APPEND LINK_LIBS win64/steam_api64)
+	else()
+		list(APPEND LINK_LIBS ${CMAKE_BINARY_DIR}/libsteam_api.so)
+	endif()
+
+	add_compile_definitions(USE_STEAM)
+endif()
+
 # Main Application
 set(SRC
-		src/mainview.h
-		src/mainview.cpp
+src/mainview.h
+src/mainview.cpp
 
-		src/main.cpp)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-add_executable(${PROJECT_NAME} ${SRC} res/resource.qrc)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBS})
+src/main.cpp src/config.h)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/SpeedyKeyV")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/SAPP")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/SpeedyKeyV")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/SAPP")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+	
+add_executable(${PROJECT_NAME} ${SRC} res/resource.qrc)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBS})
+target_link_directories(${PROJECT_NAME} PUBLIC ${LINK_DIRS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${INC_DIRS})
 
 if(WIN32)
 	# Set up the debugger so it can run the program without copying a million dlls
 	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${QT_BASEDIR}/bin;")
 
+	# Copy the steam windows binary
+	if(USE_STEAM)
+		configure_file("${STEAM_DIR}/redistributable_bin/win64/steam_api64.dll" "${CMAKE_BINARY_DIR}/steam_api64.dll" COPYONLY)
+	endif()
+endif()
+
+if(UNIX AND USE_STEAM)
+	configure_file("${STEAM_DIR}/redistributable_bin/linux64/libsteam_api.so" "${CMAKE_BINARY_DIR}/libsteam_api.so" COPYONLY)
 endif()
 
