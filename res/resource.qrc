@@ -7,6 +7,9 @@
 	<file>chaos.png</file>
 	<file>faceposer.png</file>
 	<file>modelviewer.png</file>
+	<file>arrowup.png</file>
+	<file>arrowdown.png</file>
+	<file>edit.png</file>
 	<file>momentum.png</file>
 	<file>hammer.png</file>
 </qresource>

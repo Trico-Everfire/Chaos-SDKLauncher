@@ -19,7 +19,7 @@ namespace ui
 		CMainView( QWidget *pParent );
 	private:
 		QString m_pInstallDir;
-		void OpenUrl( QString url );
-		void OpenProcess( QString execName, QStringList params );
+		static void OpenUrl( const QString& url );
+		void OpenProcess( const QString& execName, const QStringList& params );
 	};
 } // namespace ui
