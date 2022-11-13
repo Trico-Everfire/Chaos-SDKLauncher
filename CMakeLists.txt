@@ -9,11 +9,13 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 if(UNIX)
+	set(CMAKE_CXX_STANDARD 20)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 	set(QT_INCLUDE "/usr/include/x86_64-linux-gnu/qt5")
 endif()
 
 if(WIN32)
+	set(CMAKE_CXX_STANDARD 23)
 	# On Windows, the install dir must be specified, as it's not standardized
 	if(DEFINED QT_BASEDIR)
 		# Add it to the prefix path so find_package can find it

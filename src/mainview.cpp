@@ -59,7 +59,7 @@ CMainView::CMainView( QWidget *pParent ) :
 		pLayout2->addWidget( pHeader );
 		QJsonArray arr = it.value().toArray();
 
-		for ( auto &&i : arr )
+		for ( const auto &i : arr )
 		{
 			auto item = i.toObject();
 
@@ -70,7 +70,7 @@ CMainView::CMainView( QWidget *pParent ) :
 
 			pLayout2->addWidget( pButton );
 
-			auto pushButton = [=]()
+			auto pushButton = [&]()
 			{
 				auto arr = item["args"].toArray().toVariantList();
 				QStringList args;
