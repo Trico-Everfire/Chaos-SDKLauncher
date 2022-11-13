@@ -17,7 +17,7 @@ CMainView::CMainView( QWidget *pParent ) :
 {
 	CFileSystemSearchProvider provider;
 	char *installDir = new char[1048];
-	provider.GetAppInstallDir( 440000, installDir, 1048 );
+	provider.GetAppInstallDir( qgetenv("SteamAppId").toInt(), installDir, 1048 );
 	m_pInstallDir = QString( installDir );
 	delete[] installDir;
 
@@ -27,13 +27,9 @@ CMainView::CMainView( QWidget *pParent ) :
 
 	auto scrollArea = new QScrollArea();
 	scrollArea->setAlignment(Qt::AlignTop);
-//	auto pItemDialog = new QDialog(scrollArea);
 	auto pLayout2 = new QVBoxLayout(scrollArea);
 	pLayout2->setAlignment(Qt::AlignTop);
 	pLayout2->setObjectName( "SDKItemLayout" );
-
-
-//	scrollArea->setLayout(pLayout2);
 
 	pLayout->addWidget(scrollArea,0,0);
 
@@ -47,7 +43,6 @@ CMainView::CMainView( QWidget *pParent ) :
 	}
 	else if ( configFile.open (QFile::ReadOnly ) )
 	{
-		configFile.open( QFile::ReadOnly );
 		JSONConfigDocument = QJsonDocument::fromJson( configFile.readAll() );
 		configFile.close();
 	}
@@ -98,20 +93,7 @@ CMainView::CMainView( QWidget *pParent ) :
 		}
 	}
 
-
-
-//	auto btn = new QPushButton(this);
-//	btn->setIcon(QIcon(":/resource/arrowup.png"));
-//	pLayout->addWidget(btn,0,2,Qt::AlignTop);
-	auto btn2 = new QPushButton(this);
-	btn2->setIcon(QIcon(":/resource/edit.png"));
-	pLayout->addWidget(btn2,0,1,Qt::AlignTop);
-//	auto btn3 = new QPushButton(this);
-//	btn3->setIcon(QIcon(":/resource/arrowdown.png"));
-//	pLayout->addWidget(btn3,2,2,Qt::AlignTop);
-
 	scrollArea->setFixedSize(pLayout2->sizeHint());
-
 	pLayout->setAlignment(Qt::AlignTop);
 	// Set focus so we don't have focus directly on the top most button
 	this->setFocus( Qt::NoFocusReason );
