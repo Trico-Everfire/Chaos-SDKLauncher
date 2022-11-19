@@ -1,5 +1,6 @@
 #include "mainview.h"
 
+#include "FilesystemSearchProvider.h"
 #include "config.h"
 
 #include <QFile>
@@ -7,14 +8,29 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
+#include <QScrollArea>
 
 using namespace ui;
 
 CMainView::CMainView( QWidget *pParent ) :
 	QDialog( pParent )
 {
-	auto pLayout = new QVBoxLayout( this );
+	CFileSystemSearchProvider provider;
+	char *installDir = new char[1048];
+	provider.GetAppInstallDir( qgetenv( "SteamAppId" ).toInt(), installDir, 1048 );
+	m_pInstallDir = QString( installDir );
+	delete[] installDir;
+
+	auto pLayout = new QGridLayout( this );
 	pLayout->setObjectName( "SDKLayout" );
+
+	auto scrollArea = new QScrollArea();
+	scrollArea->setAlignment( Qt::AlignTop );
+	auto pLayout2 = new QVBoxLayout( scrollArea );
+	pLayout2->setAlignment( Qt::AlignTop );
+	pLayout2->setObjectName( "SDKItemLayout" );
+
+	pLayout->addWidget( scrollArea, 0, 0 );
 
 	QFile configFile( "./config.json" );
 	QJsonDocument JSONConfigDocument;
@@ -24,9 +40,8 @@ CMainView::CMainView( QWidget *pParent ) :
 		configFile.write( JSONConfigDocument.toJson() );
 		configFile.close();
 	}
-	else if ( configFile.open (QFile::ReadOnly ) )
+	else if ( configFile.open( QFile::ReadOnly ) )
 	{
-		configFile.open( QFile::ReadOnly );
 		JSONConfigDocument = QJsonDocument::fromJson( configFile.readAll() );
 		configFile.close();
 	}
@@ -37,25 +52,25 @@ CMainView::CMainView( QWidget *pParent ) :
 	}
 
 	QJsonObject JSONConfig = JSONConfigDocument.object();
-
 	for ( auto it = JSONConfig.begin(); it != JSONConfig.end(); it++ )
 	{
 		auto pHeader = new QLabel( it.key(), this );
 		pHeader->setObjectName( "Header" );
-		pLayout->addWidget( pHeader );
+		pLayout2->addWidget( pHeader );
 		QJsonArray arr = it.value().toArray();
-		for ( int i = 0; i < arr.size(); i++ )
-		{
-			auto item = arr.at( i ).toObject();
 
-			QPushButton *pButton = new QPushButton( this );
+		for ( const auto &i : arr )
+		{
+			auto item = i.toObject();
+
+			auto *pButton = new QPushButton( this );
 			pButton->setIcon( QIcon( item["icon"].toString() ) );
 			pButton->setText( item["name"].toString() );
 			pButton->setObjectName( "MediaItem" );
 
-			pLayout->addWidget( pButton );
+			pLayout2->addWidget( pButton );
 
-			auto pushButton = [=]()
+			auto pushButton = [&]()
 			{
 				auto arr = item["args"].toArray().toVariantList();
 				QStringList args;
@@ -73,23 +88,22 @@ CMainView::CMainView( QWidget *pParent ) :
 					qDebug() << "Unknown URL Type: " << item["urlType"].toString();
 			};
 
-			connect( pButton, &QPushButton::pressed, this, pushButton);
+			connect( pButton, &QPushButton::pressed, this, pushButton );
 		}
 	}
 
+	scrollArea->setFixedSize( pLayout2->sizeHint() );
+	pLayout->setAlignment( Qt::AlignTop );
 	// Set focus so we don't have focus directly on the top most button
 	this->setFocus( Qt::NoFocusReason );
-
-	this->setFixedWidth( 250 );
-	this->setFixedHeight( this->sizeHint().height() );
 }
 
-void CMainView::OpenUrl( QString url )
+void CMainView::OpenUrl( const QString &url )
 {
 	QDesktopServices::openUrl( QUrl( url ) );
 }
 
-void CMainView::OpenProcess( QString execName, QStringList params )
+void CMainView::OpenProcess( const QString &execName, const QStringList &params )
 {
 	auto pProcess = new QProcess( this );
 	pProcess->start( execName, params );

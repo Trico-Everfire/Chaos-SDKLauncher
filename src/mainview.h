@@ -15,12 +15,11 @@ namespace ui
 	class CMainView : public QDialog
 	{
 		Q_OBJECT;
-
 	public:
 		CMainView( QWidget *pParent );
-
 	private:
-		void OpenUrl( QString url );
-		void OpenProcess( QString execName, QStringList params );
+		QString m_pInstallDir;
+		static void OpenUrl( const QString& url );
+		void OpenProcess( const QString& execName, const QStringList& params );
 	};
 } // namespace ui

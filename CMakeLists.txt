@@ -9,11 +9,13 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 if(UNIX)
+	set(CMAKE_CXX_STANDARD 20)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 	set(QT_INCLUDE "/usr/include/x86_64-linux-gnu/qt5")
 endif()
 
 if(WIN32)
+	set(CMAKE_CXX_STANDARD 23)
 	# On Windows, the install dir must be specified, as it's not standardized
 	if(DEFINED QT_BASEDIR)
 		# Add it to the prefix path so find_package can find it
@@ -24,11 +26,11 @@ if(WIN32)
 	else()
 		message(FATAL_ERROR "--!@ Please define your QT install dir with -DQT_BASEDIR=C:/your/qt5/here")
 	endif()
-endif()	
-	
+endif()
+
 message("Using ${QT_INCLUDE} as our Qt include dir")
 find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui)
-list(APPEND LINK_LIBS Qt5::Widgets Qt5::Core Qt5::Gui)
+list(APPEND LINK_LIBS Qt5::Widgets Qt5::Core Qt5::Gui keyvalues SAPP)
 list(APPEND INC_DIRS ${QT_INCLUDE} ${QT_INCLUDE}/QtWidgets ${QT_INCLUDE}/QtGui ${QT_INCLUDE}/QtCore)
 
 set(CMAKE_AUTOMOC ON)
@@ -58,6 +60,10 @@ src/mainview.h
 src/mainview.cpp
 
 src/main.cpp src/config.h)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/SpeedyKeyV")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/SAPP")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/SpeedyKeyV")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/SAPP")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 	
 add_executable(${PROJECT_NAME} ${SRC} res/resource.qrc)
@@ -78,3 +84,4 @@ endif()
 if(UNIX AND USE_STEAM)
 	configure_file("${STEAM_DIR}/redistributable_bin/linux64/libsteam_api.so" "${CMAKE_BINARY_DIR}/libsteam_api.so" COPYONLY)
 endif()
+

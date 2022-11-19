@@ -1,0 +1,7 @@
+[submodule "libs/SpeedyKeyV"]
+	path = libs/SpeedyKeyV
+	url = https://github.com/ozxybox/SpeedyKeyV.git
+	branch = a
+[submodule "libs/SAPP"]
+	path = libs/SAPP
+	url = https://github.com/Trico-Everfire/SteamAppPathProvider.git

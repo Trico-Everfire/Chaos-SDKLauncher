@@ -7,6 +7,14 @@
 #include <QStringList>
 #include <QVector>
 
+#ifdef _WIN32
+#define OS_BIN_DIR	  "bin/win64"
+#define OS_BIN_SUFFIX ".bat"
+#else
+#define OS_BIN_DIR	  "bin/linux64"
+#define OS_BIN_SUFFIX ".sh"
+#endif
+
 struct MediaItem_t
 {
 	QString name;
@@ -25,11 +33,13 @@ struct MediaSection_t
 static QVector<MediaSection_t> Sections(
 	{ {
 		  "Applications",
-		  { { "Hammer World Editor", ":/resource/hammer.png", "process", "hammer.exe", { "" } },
-			{ "Model Viewer", ":/resource/modelviewer.png", "process", "hlmv.exe", { "-game p2ce" } },
-			{ "Face Poser", ":/resource/faceposer.png", "process", "hlfaceposer.exe", { "-game p2ce" } },
-			{ "P2:CE (Tools Mode)", ":/resource/logo_tools.png", "process", "chaos.exe", { "-game p2ce", "-tools" } },
-			{ "P2:CE", ":/resource/logo.png", "process", "chaos.exe", { "-game p2ce" } } },
+		  { { "Hammer World Editor", ":/resource/hammer.png", "process", "${INSTALLDIR}bin/win64/hammer.exe", { "" } },
+			{ "Model Viewer", ":/resource/modelviewer.png", "process", "${INSTALLDIR}bin/win64/hlmv.exe", { "-game", "p2ce" } },
+			{ "Face Poser", ":/resource/faceposer.png", "process", "${INSTALLDIR}bin/win64/hlfaceposer.exe", { "-game", "p2ce" } },
+			{ "P2:CE (Tools Mode)", ":/resource/logo_tools.png", "process", "${INSTALLDIR}p2ce_legacyui" OS_BIN_SUFFIX, { "-tools" } },
+			{ "P2:CE", ":/resource/logo.png", "process", "${INSTALLDIR}p2ce_legacyui" OS_BIN_SUFFIX, { "" } },
+			{ "P2:CE (Panorama) (Tools Mode)", ":/resource/logo_tools.png", "process", "${INSTALLDIR}p2ce" OS_BIN_SUFFIX, { "-tools" } },
+			{ "P2:CE (Panorama)", ":/resource/logo.png", "process", "${INSTALLDIR}p2ce" OS_BIN_SUFFIX, { "" } } },
 	  },
 	  { "Documentation",
 		{ { "Valve Developer Community", ":/resource/vdc.png", "url", "https://developer.valvesoftware.com", { "" } },
