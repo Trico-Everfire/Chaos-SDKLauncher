@@ -59,7 +59,7 @@ set(SRC
 src/mainview.h
 src/mainview.cpp
 
-src/main.cpp src/config.h)
+src/main.cpp src/config.h src/editconfig.cpp src/editconfig.h)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/SpeedyKeyV")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/SAPP")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/SpeedyKeyV")

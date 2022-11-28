@@ -15,6 +15,8 @@
 #define OS_BIN_SUFFIX ".sh"
 #endif
 
+// We define a struct with the required
+// variables, which we later use in MediaSection_t.
 struct MediaItem_t
 {
 	QString name;
@@ -24,12 +26,17 @@ struct MediaItem_t
 	QStringList args;
 };
 
+// This struct is used to house MediaItem_t and
+// a header name. it's used by Sections to hold
+// the default configuration if the file were to
+// be missing or deleted by the user.
 struct MediaSection_t
 {
 	QString header;
 	QVector<MediaItem_t> items;
 };
 
+// the default configuration
 static QVector<MediaSection_t> Sections(
 	{ {
 		  "Applications",
@@ -46,10 +53,12 @@ static QVector<MediaSection_t> Sections(
 		  { "Chaos Wiki", ":/resource/chaos.png", "url", "https://chaosinitiative.github.io/Wiki/", { "" } },
 		  { "Momentum Wiki", ":/resource/momentum.png", "url", "https://docs.momentum-mod.org/", { "" } } } } } );
 
+// This function is used to get the default configuration
+// It's used in the original construction of the config file.
 QJsonDocument defaultConfig()
 {
 	QJsonDocument doc;
-	QJsonObject root;
+	QJsonArray root;
 
 	for ( int i = 0; i < Sections.count(); i++ )
 	{
@@ -70,9 +79,11 @@ QJsonDocument defaultConfig()
 			appItems1["args"] = QJsonArray::fromStringList( item.args );
 			applications.append( appItems1 );
 		}
-		root[section.header] = applications;
+		auto mainDictionary = QJsonObject();
+		mainDictionary["header"] = section.header;
+		mainDictionary["content"] = applications;
+		root.append( mainDictionary );
 	}
-	doc.setObject( root );
-
+	doc.setArray( root );
 	return doc;
 }
