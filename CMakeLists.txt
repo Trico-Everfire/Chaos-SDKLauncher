@@ -30,7 +30,7 @@ endif()
 
 message("Using ${QT_INCLUDE} as our Qt include dir")
 find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui)
-list(APPEND LINK_LIBS Qt5::Widgets Qt5::Core Qt5::Gui keyvalues SAPP)
+list(APPEND LINK_LIBS Qt5::Widgets Qt5::Core Qt5::Gui keyvalues SAPP zlib)
 list(APPEND INC_DIRS ${QT_INCLUDE} ${QT_INCLUDE}/QtWidgets ${QT_INCLUDE}/QtGui ${QT_INCLUDE}/QtCore)
 
 set(CMAKE_AUTOMOC ON)
@@ -62,8 +62,10 @@ src/mainview.cpp
 src/main.cpp src/config.h src/editconfig.cpp src/editconfig.h)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/SpeedyKeyV")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/SAPP")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/libz-ng")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/SpeedyKeyV")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/SAPP")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/libz-ng")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 	
 add_executable(${PROJECT_NAME} ${SRC} res/resource.qrc)
