@@ -13,8 +13,8 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 	// We set the title and create a grid layout for our elements.
 	setWindowTitle( "Edit Launcher Configuration" );
 	auto pEditConfigurationLayout = new QGridLayout( this );
-	pEditList = new QListWidget( this );
-	pEditList->setItemAlignment( Qt::AlignCenter );
+	m_pEditList = new QListWidget( this );
+	m_pEditList->setItemAlignment( Qt::AlignCenter );
 	// We then loop over the items inside m_pListWidget from mainview.cpp
 	// and populate our own list widget but with normal labels instead
 	// of buttons, this way we can select and edit them to our liking.
@@ -38,7 +38,7 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 			listItemContentObject["name"] = pMainWindowListLabel->text();
 			listItemContentObject["urlType"] = "category";
 			pListWidgetItem->setData( Qt::UserRole, listItemContentObject );
-			pEditList->addItem( pListWidgetItem );
+			m_pEditList->addItem( pListWidgetItem );
 		}
 		// Buttons hold a lot more information, so we pass the data
 		// they hold directly as we need everything stored.
@@ -48,7 +48,7 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 			pListWidgetItem->setText( pMainWindowListButton->text() );
 			pListWidgetItem->setIcon( pMainWindowListButton->icon() );
 			pListWidgetItem->setData( Qt::UserRole, pMainWindowListButton->property( "JSONData" ) );
-			pEditList->addItem( pListWidgetItem );
+			m_pEditList->addItem( pListWidgetItem );
 		}
 	}
 
@@ -57,7 +57,7 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 
 	// We then create the 5 buttons responsible for editing individual
 	// instances of executables/urls/categories.
-	pEditConfigurationLayout->addWidget( pEditList, 0, 0, 5, 1 );
+	pEditConfigurationLayout->addWidget( m_pEditList, 0, 0, 5, 1 );
 	auto addCurrentButton = new QPushButton( this );
 	addCurrentButton->setIcon( QIcon( ":/resource/add.png" ) );
 	pEditConfigurationLayout->addWidget( addCurrentButton, 0, 1, Qt::AlignTop | Qt::AlignRight );
@@ -77,8 +77,8 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 	// We create a dialog button box to allow us
 	// to cancel or apply the changes the user may have made.
 	auto dialogButtons = new QDialogButtonBox( this );
-	applyButton = dialogButtons->addButton( "Apply", QDialogButtonBox::ButtonRole::ApplyRole );
-	cancelButton = dialogButtons->addButton( "Cancel", QDialogButtonBox::ButtonRole::RejectRole );
+	m_pApplyButton = dialogButtons->addButton( "Apply", QDialogButtonBox::ButtonRole::ApplyRole );
+	m_pCancelButton = dialogButtons->addButton( "Cancel", QDialogButtonBox::ButtonRole::RejectRole );
 	pEditConfigurationLayout->addWidget( dialogButtons, 5, 0, 1, 2, Qt::AlignTop | Qt::AlignLeft );
 
 	// This callback checks if the first element in the list
@@ -88,19 +88,19 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 	{
 		// We first check if there is an item in the first place.
 		// Then check if the item is a category.
-		auto current = pEditList->item( 0 );
+		auto current = m_pEditList->item( 0 );
 		if ( !current )
 		{
-			applyButton->setDisabled( true );
-			applyButton->setToolTip( "The top element must be a category." );
+			m_pApplyButton->setDisabled( true );
+			m_pApplyButton->setToolTip( "The top element must be a category." );
 			return;
 		};
-		applyButton->setDisabled( false );
-		applyButton->setToolTip( "" );
+		m_pApplyButton->setDisabled( false );
+		m_pApplyButton->setToolTip( "" );
 		if ( current->data( Qt::UserRole ).toJsonObject()["urlType"] != "category" )
 		{
-			applyButton->setDisabled( true );
-			applyButton->setToolTip( "The top element must be a category." );
+			m_pApplyButton->setDisabled( true );
+			m_pApplyButton->setToolTip( "The top element must be a category." );
 		}
 	};
 
@@ -117,7 +117,7 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 		// The application then waits for the closing
 		// of its exec(); and check if we should apply
 		// the changes made by the user.
-		auto pCurrentItem = pEditList->currentItem();
+		auto pCurrentItem = m_pEditList->currentItem();
 		auto pEditConfigPopup = new CEditConfigPopup( this );
 		pEditConfigPopup->exec();
 		if ( !pEditConfigPopup->shouldApplyChanges() )
@@ -128,14 +128,14 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 		// it's either only the name and type,
 		// name, type, icon and url, or name, type, url, icon and arguments.
 		auto pNewListItem = new QListWidgetItem();
-		pNewListItem->setText( pEditConfigPopup->pNameLineEdit->text() );
+		pNewListItem->setText( pEditConfigPopup->m_pNameLineEdit->text() );
 		pNewListItem->setIcon( QIcon() );
-		if ( QFileInfo::exists( pEditConfigPopup->pIconPathLineEdit->text() ) )
-			pNewListItem->setIcon( QIcon( pEditConfigPopup->pIconPathLineEdit->text() ) );
+		if ( QFileInfo::exists( pEditConfigPopup->m_pIconPathLineEdit->text() ) )
+			pNewListItem->setIcon( QIcon( pEditConfigPopup->m_pIconPathLineEdit->text() ) );
 
 		auto listItemJSONContents = QJsonObject();
-		listItemJSONContents["name"] = pEditConfigPopup->pNameLineEdit->text();
-		if ( pEditConfigPopup->pTypeComboBox->currentIndex() == 2 )
+		listItemJSONContents["name"] = pEditConfigPopup->m_pNameLineEdit->text();
+		if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 2 )
 		{
 			// Categories are highlighted in bold to distinguish
 			// them from buttons.
@@ -147,20 +147,20 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 			pNewListItem->setFont( listItemFont );
 			listItemJSONContents["urlType"] = "category";
 			pNewListItem->setData( Qt::UserRole, listItemJSONContents );
-			pEditList->currentRowChanged( 0 );
-			int currentRow = pEditList->row( pCurrentItem );
-			pEditList->insertItem( currentRow + 1, pNewListItem );
+			m_pEditList->currentRowChanged( 0 );
+			int currentRow = m_pEditList->row( pCurrentItem );
+			m_pEditList->insertItem( currentRow + 1, pNewListItem );
 			return;
 		}
-		listItemJSONContents["url"] = pEditConfigPopup->pUrlLineEdit->text();
-		listItemJSONContents["icon"] = pEditConfigPopup->pIconPathLineEdit->text();
+		listItemJSONContents["url"] = pEditConfigPopup->m_pUrlLineEdit->text();
+		listItemJSONContents["icon"] = pEditConfigPopup->m_pIconPathLineEdit->text();
 		listItemJSONContents["urlType"] = "url";
-		if ( pEditConfigPopup->pTypeComboBox->currentIndex() == 0 )
+		if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 0 )
 		{
 			// We need to convert the arguments from a
 			// QString to a QStringList.
 			auto jsonArgumentList = QJsonArray();
-			foreach( auto listArgument, pEditConfigPopup->pArgumentsListTextEdit->toPlainText().split( " " ) )
+			foreach( auto listArgument, pEditConfigPopup->m_pArgumentsListTextEdit->toPlainText().split( " " ) )
 			{
 				jsonArgumentList.append( listArgument );
 			}
@@ -169,10 +169,10 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 		}
 		// We then store the JSON data and call the list's row changed function.
 		pNewListItem->setData( Qt::UserRole, listItemJSONContents );
-		pEditList->currentRowChanged( 0 );
+		m_pEditList->currentRowChanged( 0 );
 
-		int currentRow = pCurrentItem ? pEditList->row( pCurrentItem ) : 0;
-		pEditList->insertItem( currentRow + 1, pNewListItem );
+		int currentRow = pCurrentItem ? m_pEditList->row( pCurrentItem ) : 0;
+		m_pEditList->insertItem( currentRow + 1, pNewListItem );
 	};
 
 	// This callback shifts an item's position down by 1.
@@ -180,15 +180,15 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 	// selection itself to align it with the shift.
 	auto onShiftItemDownButtonPressedCallback = [&]
 	{
-		auto item = pEditList->currentItem();
+		auto item = m_pEditList->currentItem();
 		if ( item )
 		{
-			if ( pEditList->row( item ) + 1 > pEditList->count() - 1 )
+			if ( m_pEditList->row( item ) + 1 > m_pEditList->count() - 1 )
 				return;
-			int currentRow = pEditList->row( item );
-			pEditList->takeItem( currentRow );
-			pEditList->insertItem( currentRow + 1, item );
-			pEditList->setCurrentRow( currentRow + 1 );
+			int currentRow = m_pEditList->row( item );
+			m_pEditList->takeItem( currentRow );
+			m_pEditList->insertItem( currentRow + 1, item );
+			m_pEditList->setCurrentRow( currentRow + 1 );
 		}
 	};
 
@@ -205,7 +205,7 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 		// of the edit config class with its contents.
 		// then later store the JSON data and also call
 		// the list's row changed function.
-		auto pSelectedItem = pEditList->currentItem();
+		auto pSelectedItem = m_pEditList->currentItem();
 		if ( !pSelectedItem )
 			return;
 		auto listItemJSONContents = pSelectedItem->data( Qt::UserRole ).toJsonObject();
@@ -213,18 +213,18 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 		pEditConfigPopup->setWindowTitle( "Edit " + pSelectedItem->text() );
 		if ( listItemJSONContents["urlType"] == "category" )
 		{
-			pEditConfigPopup->pNameLineEdit->setText( pSelectedItem->text() );
-			pEditConfigPopup->pTypeComboBox->setCurrentIndex( 2 );
+			pEditConfigPopup->m_pNameLineEdit->setText( pSelectedItem->text() );
+			pEditConfigPopup->m_pTypeComboBox->setCurrentIndex( 2 );
 		}
 		else
 		{
-			pEditConfigPopup->pNameLineEdit->setText( listItemJSONContents["name"].toString() );
-			pEditConfigPopup->pUrlLineEdit->setText( listItemJSONContents["url"].toString() );
-			pEditConfigPopup->pIconPathLineEdit->setText( listItemJSONContents["icon"].toString() );
-			pEditConfigPopup->pTypeComboBox->setCurrentIndex( 1 );
+			pEditConfigPopup->m_pNameLineEdit->setText( listItemJSONContents["name"].toString() );
+			pEditConfigPopup->m_pUrlLineEdit->setText( listItemJSONContents["url"].toString() );
+			pEditConfigPopup->m_pIconPathLineEdit->setText( listItemJSONContents["icon"].toString() );
+			pEditConfigPopup->m_pTypeComboBox->setCurrentIndex( 1 );
 			if ( listItemJSONContents["urlType"] == "process" )
 			{
-				pEditConfigPopup->pTypeComboBox->setCurrentIndex( 0 );
+				pEditConfigPopup->m_pTypeComboBox->setCurrentIndex( 0 );
 				auto oldJSONArgumentList = QString( "" );
 				// We need to convert the arguments from a
 				// JSON Array to a QString for the
@@ -233,7 +233,7 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 				{
 					oldJSONArgumentList.append( str.toString() + " " );
 				}
-				pEditConfigPopup->pArgumentsListTextEdit->setText( oldJSONArgumentList );
+				pEditConfigPopup->m_pArgumentsListTextEdit->setText( oldJSONArgumentList );
 			}
 		}
 
@@ -241,14 +241,14 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 		if ( !pEditConfigPopup->shouldApplyChanges() )
 			return;
 
-		pSelectedItem->setText( pEditConfigPopup->pNameLineEdit->text() );
+		pSelectedItem->setText( pEditConfigPopup->m_pNameLineEdit->text() );
 		pSelectedItem->setIcon( QIcon() );
-		if ( QFileInfo::exists( pEditConfigPopup->pIconPathLineEdit->text() ) )
-			pSelectedItem->setIcon( QIcon( pEditConfigPopup->pIconPathLineEdit->text() ) );
+		if ( QFileInfo::exists( pEditConfigPopup->m_pIconPathLineEdit->text() ) )
+			pSelectedItem->setIcon( QIcon( pEditConfigPopup->m_pIconPathLineEdit->text() ) );
 
 		auto newListItemJSONContents = QJsonObject();
-		newListItemJSONContents["name"] = pEditConfigPopup->pNameLineEdit->text();
-		if ( pEditConfigPopup->pTypeComboBox->currentIndex() == 2 )
+		newListItemJSONContents["name"] = pEditConfigPopup->m_pNameLineEdit->text();
+		if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 2 )
 		{
 			// Categories are highlighted in bold to distinguish
 			// them from buttons.
@@ -261,18 +261,18 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 			newListItemJSONContents["urlType"] = "category";
 			pSelectedItem->setData( Qt::UserRole, newListItemJSONContents );
 			pSelectedItem->setIcon( QIcon() );
-			pEditList->currentRowChanged( 0 );
+			m_pEditList->currentRowChanged( 0 );
 			return;
 		}
-		newListItemJSONContents["url"] = pEditConfigPopup->pUrlLineEdit->text();
-		newListItemJSONContents["icon"] = pEditConfigPopup->pIconPathLineEdit->text();
+		newListItemJSONContents["url"] = pEditConfigPopup->m_pUrlLineEdit->text();
+		newListItemJSONContents["icon"] = pEditConfigPopup->m_pIconPathLineEdit->text();
 		newListItemJSONContents["urlType"] = "url";
-		if ( pEditConfigPopup->pTypeComboBox->currentIndex() == 0 )
+		if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 0 )
 		{
 			// We need to convert the arguments from a
 			// QString to a QStringList.
 			auto newJSONArgumentList = QJsonArray();
-			foreach( auto arg, pEditConfigPopup->pArgumentsListTextEdit->toPlainText().split( " " ) )
+			foreach( auto arg, pEditConfigPopup->m_pArgumentsListTextEdit->toPlainText().split( " " ) )
 			{
 				newJSONArgumentList.append( arg );
 			}
@@ -280,35 +280,35 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 			newListItemJSONContents["args"] = newJSONArgumentList;
 		}
 		pSelectedItem->setData( Qt::UserRole, newListItemJSONContents );
-		pEditList->currentRowChanged( 0 );
+		m_pEditList->currentRowChanged( 0 );
 	};
 
 	// This callback is like onShiftItemDownButtonPressedCallback
 	// except it shifts it up by 1.
 	auto onShiftItemUpButtonPressedCallback = [&]
 	{
-		auto item = pEditList->currentItem();
+		auto item = m_pEditList->currentItem();
 		if ( item )
 		{
-			if ( pEditList->row( item ) - 1 < 0 )
+			if ( m_pEditList->row( item ) - 1 < 0 )
 				return;
-			int currentRow = pEditList->row( item );
-			pEditList->takeItem( currentRow );
-			pEditList->insertItem( currentRow - 1, item );
-			pEditList->setCurrentRow( currentRow - 1 );
+			int currentRow = m_pEditList->row( item );
+			m_pEditList->takeItem( currentRow );
+			m_pEditList->insertItem( currentRow - 1, item );
+			m_pEditList->setCurrentRow( currentRow - 1 );
 		}
 	};
 
 	// This callback removes the currently selected item.
 	auto onRemoveItemButtonPressedCallback = [&]
 	{
-		auto item = pEditList->currentItem();
+		auto item = m_pEditList->currentItem();
 		if ( !item )
 			return;
-		int currentItemRow = pEditList->row( item );
-		pEditList->takeItem( currentItemRow );
+		int currentItemRow = m_pEditList->row( item );
+		m_pEditList->takeItem( currentItemRow );
 		delete item;
-		pEditList->currentRowChanged( 0 );
+		m_pEditList->currentRowChanged( 0 );
 	};
 
 	// This callback checks if the user pressed to apply or cancel buttons.
@@ -345,9 +345,9 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 			QJsonArray *pCurrentCategory;
 			auto jsonArrayVector = QVector<QPair<QString, QJsonArray *>>();
 
-			for ( int i = 0; i < pEditList->count(); i++ )
+			for ( int i = 0; i < m_pEditList->count(); i++ )
 			{
-				auto pListItem = pEditList->item( i );
+				auto pListItem = m_pEditList->item( i );
 				auto itemJSONContents = pListItem->data( Qt::UserRole ).toJsonObject();
 				if ( itemJSONContents["urlType"] == "category" )
 				{
@@ -423,7 +423,7 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 	};
 
 	// We then use these callbacks.
-	connect( pEditList, &QListWidget::currentRowChanged, this, onCurrentRowChangedCallback );
+	connect( m_pEditList, &QListWidget::currentRowChanged, this, onCurrentRowChangedCallback );
 	connect( addCurrentButton, &QPushButton::pressed, this, onAddItemButtonPressedCallback );
 	connect( shiftDownButton, &QPushButton::pressed, this, onShiftItemDownButtonPressedCallback );
 	connect( editButton, &QPushButton::pressed, this, onEditItemButtonPressedCallback );
@@ -431,7 +431,7 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 	connect( removeCurrentButton, &QPushButton::pressed, this, onRemoveItemButtonPressedCallback );
 	connect( dialogButtons, &QDialogButtonBox::clicked, this, onDialogButtonsPressedCallback );
 
-	// to prevent buttons from aligning equally across the pEditList widget's
+	// to prevent buttons from aligning equally across the m_pEditList widget's
 	// height, we cap the stretch at 1, keeping them all neatly lined up.
 	pEditConfigurationLayout->setRowStretch( 4, 1 );
 
@@ -445,53 +445,53 @@ ui::CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 	auto pConfigPopupLayout = new QGridLayout( this );
 	pConfigPopupLayout->setAlignment( Qt::AlignTop | Qt::AlignRight );
 
-	pNameLabel = new QLabel( this );
-	pNameLabel->setText( "Name:" );
-	pConfigPopupLayout->addWidget( pNameLabel, 0, 0 );
-	pNameLineEdit = new QLineEdit( this );
-	pConfigPopupLayout->addWidget( pNameLineEdit, 0, 1 );
+	m_pNameLabel = new QLabel( this );
+	m_pNameLabel->setText( "Name:" );
+	pConfigPopupLayout->addWidget( m_pNameLabel, 0, 0 );
+	m_pNameLineEdit = new QLineEdit( this );
+	pConfigPopupLayout->addWidget( m_pNameLineEdit, 0, 1 );
 
-	pTypeLabel = new QLabel( this );
-	pTypeLabel->setText( "Type:" );
-	pConfigPopupLayout->addWidget( pTypeLabel, 0, 2 );
-	pTypeComboBox = new QComboBox( this );
-	pTypeComboBox->addItem( "Executable" );
-	pTypeComboBox->addItem( "Url" );
-	pTypeComboBox->addItem( "Category" );
-	pConfigPopupLayout->addWidget( pTypeComboBox, 0, 3 );
+	m_pTypeLabel = new QLabel( this );
+	m_pTypeLabel->setText( "Type:" );
+	pConfigPopupLayout->addWidget( m_pTypeLabel, 0, 2 );
+	m_pTypeComboBox = new QComboBox( this );
+	m_pTypeComboBox->addItem( "Executable" );
+	m_pTypeComboBox->addItem( "Url" );
+	m_pTypeComboBox->addItem( "Category" );
+	pConfigPopupLayout->addWidget( m_pTypeComboBox, 0, 3 );
 
-	pUrlLabel = new QLabel( this );
-	pUrlLabel->setText( "Exec:" );
-	pConfigPopupLayout->addWidget( pUrlLabel, 1, 0 );
-	pUrlLineEdit = new QLineEdit( this );
-	pConfigPopupLayout->addWidget( pUrlLineEdit, 1, 1 );
+	m_pUrlLabel = new QLabel( this );
+	m_pUrlLabel->setText( "Exec:" );
+	pConfigPopupLayout->addWidget( m_pUrlLabel, 1, 0 );
+	m_pUrlLineEdit = new QLineEdit( this );
+	pConfigPopupLayout->addWidget( m_pUrlLineEdit, 1, 1 );
 
-	pIconLabel = new QLabel( this );
-	pIconLabel->setText( "Icon:" );
-	pConfigPopupLayout->addWidget( pIconLabel, 1, 2 );
-	pIconPathLineEdit = new QLineEdit( this );
-	pConfigPopupLayout->addWidget( pIconPathLineEdit, 1, 3 );
+	m_pIconLabel = new QLabel( this );
+	m_pIconLabel->setText( "Icon:" );
+	pConfigPopupLayout->addWidget( m_pIconLabel, 1, 2 );
+	m_pIconPathLineEdit = new QLineEdit( this );
+	pConfigPopupLayout->addWidget( m_pIconPathLineEdit, 1, 3 );
 
-	pArgumentsLabel = new QLabel( this );
-	pArgumentsLabel->setText( "Arg:" );
-	pConfigPopupLayout->addWidget( pArgumentsLabel, 2, 0 );
-	pArgumentsListTextEdit = new QTextEdit( this );
-	pArgumentsListTextEdit->setFixedHeight( pIconPathLineEdit->sizeHint().height() );
-	pConfigPopupLayout->addWidget( pArgumentsListTextEdit, 2, 1, 1, 3 );
+	m_pArgumentsLabel = new QLabel( this );
+	m_pArgumentsLabel->setText( "Arg:" );
+	pConfigPopupLayout->addWidget( m_pArgumentsLabel, 2, 0 );
+	m_pArgumentsListTextEdit = new QTextEdit( this );
+	m_pArgumentsListTextEdit->setFixedHeight( m_pIconPathLineEdit->sizeHint().height() );
+	pConfigPopupLayout->addWidget( m_pArgumentsListTextEdit, 2, 1, 1, 3 );
 
 	auto pAcceptCancelButtonBox = new QDialogButtonBox( this );
-	applyBox = pAcceptCancelButtonBox->addButton( "Apply", QDialogButtonBox::ButtonRole::ApplyRole );
+	m_pApplyButton = pAcceptCancelButtonBox->addButton( "Apply", QDialogButtonBox::ButtonRole::ApplyRole );
 	pAcceptCancelButtonBox->addButton( "Cancel", QDialogButtonBox::ButtonRole::RejectRole );
 	pConfigPopupLayout->addWidget( pAcceptCancelButtonBox, 3, 0, 1, 4, Qt::AlignLeft );
 
-	// In this callback we need to check if pNameLineEdit is empty or only spaces for categories.
+	// In this callback we need to check if m_pNameLineEdit is empty or only spaces for categories.
 	// Because this can break things if they're empty, JSON doesn't fare well with empty keys.
-	connect( pNameLineEdit, &QLineEdit::textChanged, this, [&]( const QString &text )
+	connect( m_pNameLineEdit, &QLineEdit::textChanged, this, [&]( const QString &text )
 			 {
-				 if ( pTypeComboBox->currentIndex() == 2 )
+				 if ( m_pTypeComboBox->currentIndex() == 2 )
 				 {
-					 applyBox->setEnabled( text.count( " " ) != text.count() );
-					 applyBox->setToolTip( pNameLineEdit->text().count( " " ) != pNameLineEdit->text().count() ? "" : "Categories MUST have a name." );
+					 m_pApplyButton->setEnabled( text.count( " " ) != text.count() );
+					 m_pApplyButton->setToolTip( m_pNameLineEdit->text().count( " " ) != m_pNameLineEdit->text().count() ? "" : "Categories MUST have a name." );
 				 }
 			 } );
 
@@ -506,48 +506,48 @@ ui::CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 				 this->close();
 			 } );
 
-	// When pTypeComboBox changes, certain aspects become disabled.
-	// An URL doesn't use parameters, and a category only uses pNameLineEdit
+	// When m_pTypeComboBox changes, certain aspects become disabled.
+	// An URL doesn't use parameters, and a category only uses m_pNameLineEdit
 	// So we disable and enable fields depending on the combo box's current
 	// index.
-	connect( pTypeComboBox, &QComboBox::currentTextChanged, this, [&]( const QString &text )
+	connect( m_pTypeComboBox, &QComboBox::currentTextChanged, this, [&]( const QString &text )
 			 {
 				 if ( text == "Executable" )
 				 {
-					 pUrlLabel->setText( "Exec:" );
-					 pUrlLabel->setEnabled( true );
-					 pUrlLineEdit->setEnabled( true );
-					 pIconLabel->setEnabled( true );
-					 pIconPathLineEdit->setEnabled( true );
-					 pArgumentsLabel->setEnabled( true );
-					 pArgumentsListTextEdit->setEnabled( true );
-					 applyBox->setEnabled( true );
-					 applyBox->setToolTip( "" );
+					 m_pUrlLabel->setText( "Exec:" );
+					 m_pUrlLabel->setEnabled( true );
+					 m_pUrlLineEdit->setEnabled( true );
+					 m_pIconLabel->setEnabled( true );
+					 m_pIconPathLineEdit->setEnabled( true );
+					 m_pArgumentsLabel->setEnabled( true );
+					 m_pArgumentsListTextEdit->setEnabled( true );
+					 m_pApplyButton->setEnabled( true );
+					 m_pApplyButton->setToolTip( "" );
 					 return;
 				 }
 				 if ( text == "Url" )
 				 {
-					 pUrlLabel->setText( "Url:" );
-					 pUrlLabel->setEnabled( true );
-					 pUrlLineEdit->setEnabled( true );
-					 pIconLabel->setEnabled( true );
-					 pIconPathLineEdit->setEnabled( true );
-					 pArgumentsLabel->setEnabled( false );
-					 pArgumentsListTextEdit->setEnabled( false );
-					 applyBox->setEnabled( true );
-					 applyBox->setToolTip( "" );
+					 m_pUrlLabel->setText( "Url:" );
+					 m_pUrlLabel->setEnabled( true );
+					 m_pUrlLineEdit->setEnabled( true );
+					 m_pIconLabel->setEnabled( true );
+					 m_pIconPathLineEdit->setEnabled( true );
+					 m_pArgumentsLabel->setEnabled( false );
+					 m_pArgumentsListTextEdit->setEnabled( false );
+					 m_pApplyButton->setEnabled( true );
+					 m_pApplyButton->setToolTip( "" );
 					 return;
 				 }
 				 if ( text == "Category" )
 				 {
-					 pUrlLabel->setEnabled( false );
-					 pUrlLineEdit->setEnabled( false );
-					 pIconLabel->setEnabled( false );
-					 pIconPathLineEdit->setEnabled( false );
-					 pArgumentsLabel->setEnabled( false );
-					 pArgumentsListTextEdit->setEnabled( false );
-					 applyBox->setToolTip( pNameLineEdit->text().count( " " ) != pNameLineEdit->text().count() ? "" : "Categories MUST have a name." );
-					 applyBox->setEnabled( pNameLineEdit->text().count( " " ) != pNameLineEdit->text().count() );
+					 m_pUrlLabel->setEnabled( false );
+					 m_pUrlLineEdit->setEnabled( false );
+					 m_pIconLabel->setEnabled( false );
+					 m_pIconPathLineEdit->setEnabled( false );
+					 m_pArgumentsLabel->setEnabled( false );
+					 m_pArgumentsListTextEdit->setEnabled( false );
+					 m_pApplyButton->setToolTip( m_pNameLineEdit->text().count( " " ) != m_pNameLineEdit->text().count() ? "" : "Categories MUST have a name." );
+					 m_pApplyButton->setEnabled( m_pNameLineEdit->text().count( " " ) != m_pNameLineEdit->text().count() );
 					 return;
 				 }
 			 } );

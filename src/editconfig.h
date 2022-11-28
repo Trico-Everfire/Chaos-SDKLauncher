@@ -15,9 +15,9 @@ namespace ui
 	{
 	public:
 		CEditConfig( CMainView *parent );
-		QListWidget *pEditList;
-		QPushButton *applyButton;
-		QPushButton *cancelButton;
+		QListWidget *m_pEditList;
+		QPushButton *m_pApplyButton;
+		QPushButton *m_pCancelButton;
 	};
 
 	// The popup for config items we want to edit.
@@ -28,17 +28,17 @@ namespace ui
 	public:
 		CEditConfigPopup( CEditConfig *parent );
 		bool shouldApplyChanges() const;
-		QComboBox *pTypeComboBox;
-		QLineEdit *pNameLineEdit;
-		QLineEdit *pUrlLineEdit;
-		QLineEdit *pIconPathLineEdit;
-		QTextEdit *pArgumentsListTextEdit;
-		QLabel *pNameLabel;
-		QLabel *pTypeLabel;
-		QLabel *pUrlLabel;
-		QLabel *pIconLabel;
-		QLabel *pArgumentsLabel;
-		QPushButton *applyBox;
+		QComboBox *m_pTypeComboBox;
+		QLineEdit *m_pNameLineEdit;
+		QLineEdit *m_pUrlLineEdit;
+		QLineEdit *m_pIconPathLineEdit;
+		QTextEdit *m_pArgumentsListTextEdit;
+		QLabel *m_pNameLabel;
+		QLabel *m_pTypeLabel;
+		QLabel *m_pUrlLabel;
+		QLabel *m_pIconLabel;
+		QLabel *m_pArgumentsLabel;
+		QPushButton *m_pApplyButton;
 	};
 } // namespace ui
 
