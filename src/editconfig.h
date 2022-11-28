@@ -17,7 +17,6 @@ namespace ui
 		CEditConfig( CMainView *parent );
 		QListWidget *m_pEditList;
 		QPushButton *m_pApplyButton;
-		QPushButton *m_pCancelButton;
 	};
 
 	// The popup for config items we want to edit.
@@ -33,11 +32,6 @@ namespace ui
 		QLineEdit *m_pUrlLineEdit;
 		QLineEdit *m_pIconPathLineEdit;
 		QTextEdit *m_pArgumentsListTextEdit;
-		QLabel *m_pNameLabel;
-		QLabel *m_pTypeLabel;
-		QLabel *m_pUrlLabel;
-		QLabel *m_pIconLabel;
-		QLabel *m_pArgumentsLabel;
 		QPushButton *m_pApplyButton;
 	};
 } // namespace ui

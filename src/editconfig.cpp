@@ -7,7 +7,9 @@
 #include <QJsonObject>
 #include <QSizePolicy>
 
-ui::CEditConfig::CEditConfig( CMainView *parent ) :
+using namespace ui;
+
+CEditConfig::CEditConfig( CMainView *parent ) :
 	QDialog( parent )
 {
 	// We set the title and create a grid layout for our elements.
@@ -58,28 +60,28 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 	// We then create the 5 buttons responsible for editing individual
 	// instances of executables/urls/categories.
 	pEditConfigurationLayout->addWidget( m_pEditList, 0, 0, 5, 1 );
-	auto addCurrentButton = new QPushButton( this );
-	addCurrentButton->setIcon( QIcon( ":/resource/add.png" ) );
-	pEditConfigurationLayout->addWidget( addCurrentButton, 0, 1, Qt::AlignTop | Qt::AlignRight );
-	auto shiftUpButton = new QPushButton( this );
-	shiftUpButton->setIcon( QIcon( ":/resource/arrowup.png" ) );
-	pEditConfigurationLayout->addWidget( shiftUpButton, 1, 1, Qt::AlignTop | Qt::AlignRight );
-	auto editButton = new QPushButton( this );
-	editButton->setIcon( QIcon( ":/resource/edit.png" ) );
-	pEditConfigurationLayout->addWidget( editButton, 2, 1, Qt::AlignTop | Qt::AlignRight );
-	auto shiftDownButton = new QPushButton( this );
-	shiftDownButton->setIcon( QIcon( ":/resource/arrowdown.png" ) );
-	pEditConfigurationLayout->addWidget( shiftDownButton, 3, 1, Qt::AlignTop | Qt::AlignRight );
-	auto removeCurrentButton = new QPushButton( this );
-	removeCurrentButton->setIcon( QIcon( ":/resource/remove.png" ) );
-	pEditConfigurationLayout->addWidget( removeCurrentButton, 4, 1, Qt::AlignTop | Qt::AlignRight );
+	auto pAddCurrentButton = new QPushButton( this );
+	pAddCurrentButton->setIcon( QIcon( ":/resource/add.png" ) );
+	pEditConfigurationLayout->addWidget( pAddCurrentButton, 0, 1, Qt::AlignTop | Qt::AlignRight );
+	auto pShiftUpButton = new QPushButton( this );
+	pShiftUpButton->setIcon( QIcon( ":/resource/arrowup.png" ) );
+	pEditConfigurationLayout->addWidget( pShiftUpButton, 1, 1, Qt::AlignTop | Qt::AlignRight );
+	auto pEditButton = new QPushButton( this );
+	pEditButton->setIcon( QIcon( ":/resource/edit.png" ) );
+	pEditConfigurationLayout->addWidget( pEditButton, 2, 1, Qt::AlignTop | Qt::AlignRight );
+	auto pShiftDownButton = new QPushButton( this );
+	pShiftDownButton->setIcon( QIcon( ":/resource/arrowdown.png" ) );
+	pEditConfigurationLayout->addWidget( pShiftDownButton, 3, 1, Qt::AlignTop | Qt::AlignRight );
+	auto pRemoveCurrentButton = new QPushButton( this );
+	pRemoveCurrentButton->setIcon( QIcon( ":/resource/remove.png" ) );
+	pEditConfigurationLayout->addWidget( pRemoveCurrentButton, 4, 1, Qt::AlignTop | Qt::AlignRight );
 
 	// We create a dialog button box to allow us
 	// to cancel or apply the changes the user may have made.
-	auto dialogButtons = new QDialogButtonBox( this );
-	m_pApplyButton = dialogButtons->addButton( "Apply", QDialogButtonBox::ButtonRole::ApplyRole );
-	m_pCancelButton = dialogButtons->addButton( "Cancel", QDialogButtonBox::ButtonRole::RejectRole );
-	pEditConfigurationLayout->addWidget( dialogButtons, 5, 0, 1, 2, Qt::AlignTop | Qt::AlignLeft );
+	auto pDialogButtons = new QDialogButtonBox( this );
+	m_pApplyButton = pDialogButtons->addButton( "Apply", QDialogButtonBox::ButtonRole::ApplyRole );
+	pDialogButtons->addButton( "Cancel", QDialogButtonBox::ButtonRole::RejectRole );
+	pEditConfigurationLayout->addWidget( pDialogButtons, 5, 0, 1, 2, Qt::AlignTop | Qt::AlignLeft );
 
 	// This callback checks if the first element in the list
 	// is a category. As a category defies what elements are
@@ -94,7 +96,7 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 			m_pApplyButton->setDisabled( true );
 			m_pApplyButton->setToolTip( "The top element must be a category." );
 			return;
-		};
+		}
 		m_pApplyButton->setDisabled( false );
 		m_pApplyButton->setToolTip( "" );
 		if ( current->data( Qt::UserRole ).toJsonObject()["urlType"] != "category" )
@@ -424,12 +426,12 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 
 	// We then use these callbacks.
 	connect( m_pEditList, &QListWidget::currentRowChanged, this, onCurrentRowChangedCallback );
-	connect( addCurrentButton, &QPushButton::pressed, this, onAddItemButtonPressedCallback );
-	connect( shiftDownButton, &QPushButton::pressed, this, onShiftItemDownButtonPressedCallback );
-	connect( editButton, &QPushButton::pressed, this, onEditItemButtonPressedCallback );
-	connect( shiftUpButton, &QPushButton::pressed, this, onShiftItemUpButtonPressedCallback );
-	connect( removeCurrentButton, &QPushButton::pressed, this, onRemoveItemButtonPressedCallback );
-	connect( dialogButtons, &QDialogButtonBox::clicked, this, onDialogButtonsPressedCallback );
+	connect( pAddCurrentButton, &QPushButton::pressed, this, onAddItemButtonPressedCallback );
+	connect( pShiftDownButton, &QPushButton::pressed, this, onShiftItemDownButtonPressedCallback );
+	connect( pEditButton, &QPushButton::pressed, this, onEditItemButtonPressedCallback );
+	connect( pShiftUpButton, &QPushButton::pressed, this, onShiftItemUpButtonPressedCallback );
+	connect( pRemoveCurrentButton, &QPushButton::pressed, this, onRemoveItemButtonPressedCallback );
+	connect( pDialogButtons, &QDialogButtonBox::clicked, this, onDialogButtonsPressedCallback );
 
 	// to prevent buttons from aligning equally across the m_pEditList widget's
 	// height, we cap the stretch at 1, keeping them all neatly lined up.
@@ -439,42 +441,42 @@ ui::CEditConfig::CEditConfig( CMainView *parent ) :
 	this->setFocus( Qt::NoFocusReason );
 }
 
-ui::CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
+CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 	QDialog( parent )
 {
 	auto pConfigPopupLayout = new QGridLayout( this );
 	pConfigPopupLayout->setAlignment( Qt::AlignTop | Qt::AlignRight );
 
-	m_pNameLabel = new QLabel( this );
-	m_pNameLabel->setText( "Name:" );
-	pConfigPopupLayout->addWidget( m_pNameLabel, 0, 0 );
+	auto pNameLabel = new QLabel( this );
+	pNameLabel->setText( "Name:" );
+	pConfigPopupLayout->addWidget( pNameLabel, 0, 0 );
 	m_pNameLineEdit = new QLineEdit( this );
 	pConfigPopupLayout->addWidget( m_pNameLineEdit, 0, 1 );
 
-	m_pTypeLabel = new QLabel( this );
-	m_pTypeLabel->setText( "Type:" );
-	pConfigPopupLayout->addWidget( m_pTypeLabel, 0, 2 );
+	auto pTypeLabel = new QLabel( this );
+	pTypeLabel->setText( "Type:" );
+	pConfigPopupLayout->addWidget( pTypeLabel, 0, 2 );
 	m_pTypeComboBox = new QComboBox( this );
 	m_pTypeComboBox->addItem( "Executable" );
 	m_pTypeComboBox->addItem( "Url" );
 	m_pTypeComboBox->addItem( "Category" );
 	pConfigPopupLayout->addWidget( m_pTypeComboBox, 0, 3 );
 
-	m_pUrlLabel = new QLabel( this );
-	m_pUrlLabel->setText( "Exec:" );
-	pConfigPopupLayout->addWidget( m_pUrlLabel, 1, 0 );
+	auto pUrlLabel = new QLabel( this );
+	pUrlLabel->setText( "Exec:" );
+	pConfigPopupLayout->addWidget( pUrlLabel, 1, 0 );
 	m_pUrlLineEdit = new QLineEdit( this );
 	pConfigPopupLayout->addWidget( m_pUrlLineEdit, 1, 1 );
 
-	m_pIconLabel = new QLabel( this );
-	m_pIconLabel->setText( "Icon:" );
-	pConfigPopupLayout->addWidget( m_pIconLabel, 1, 2 );
+	auto pIconLabel = new QLabel( this );
+	pIconLabel->setText( "Icon:" );
+	pConfigPopupLayout->addWidget( pIconLabel, 1, 2 );
 	m_pIconPathLineEdit = new QLineEdit( this );
 	pConfigPopupLayout->addWidget( m_pIconPathLineEdit, 1, 3 );
 
-	m_pArgumentsLabel = new QLabel( this );
-	m_pArgumentsLabel->setText( "Arg:" );
-	pConfigPopupLayout->addWidget( m_pArgumentsLabel, 2, 0 );
+	auto pArgumentsLabel = new QLabel( this );
+	pArgumentsLabel->setText( "Arg:" );
+	pConfigPopupLayout->addWidget( pArgumentsLabel, 2, 0 );
 	m_pArgumentsListTextEdit = new QTextEdit( this );
 	m_pArgumentsListTextEdit->setFixedHeight( m_pIconPathLineEdit->sizeHint().height() );
 	pConfigPopupLayout->addWidget( m_pArgumentsListTextEdit, 2, 1, 1, 3 );
@@ -510,16 +512,16 @@ ui::CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 	// An URL doesn't use parameters, and a category only uses m_pNameLineEdit
 	// So we disable and enable fields depending on the combo box's current
 	// index.
-	connect( m_pTypeComboBox, &QComboBox::currentTextChanged, this, [&]( const QString &text )
+	connect( m_pTypeComboBox, &QComboBox::currentTextChanged, this, [&, pUrlLabel]( const QString &text )
 			 {
 				 if ( text == "Executable" )
 				 {
-					 m_pUrlLabel->setText( "Exec:" );
-					 m_pUrlLabel->setEnabled( true );
+					 pUrlLabel->setText( "Exec:" );
+					 pUrlLabel->setEnabled( true );
 					 m_pUrlLineEdit->setEnabled( true );
-					 m_pIconLabel->setEnabled( true );
+					 pIconLabel->setEnabled( true );
 					 m_pIconPathLineEdit->setEnabled( true );
-					 m_pArgumentsLabel->setEnabled( true );
+					 pArgumentsLabel->setEnabled( true );
 					 m_pArgumentsListTextEdit->setEnabled( true );
 					 m_pApplyButton->setEnabled( true );
 					 m_pApplyButton->setToolTip( "" );
@@ -527,12 +529,12 @@ ui::CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 				 }
 				 if ( text == "Url" )
 				 {
-					 m_pUrlLabel->setText( "Url:" );
-					 m_pUrlLabel->setEnabled( true );
+					 pUrlLabel->setText( "Url:" );
+					 pUrlLabel->setEnabled( true );
 					 m_pUrlLineEdit->setEnabled( true );
-					 m_pIconLabel->setEnabled( true );
+					 pIconLabel->setEnabled( true );
 					 m_pIconPathLineEdit->setEnabled( true );
-					 m_pArgumentsLabel->setEnabled( false );
+					 pArgumentsLabel->setEnabled( false );
 					 m_pArgumentsListTextEdit->setEnabled( false );
 					 m_pApplyButton->setEnabled( true );
 					 m_pApplyButton->setToolTip( "" );
@@ -540,11 +542,11 @@ ui::CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 				 }
 				 if ( text == "Category" )
 				 {
-					 m_pUrlLabel->setEnabled( false );
+					 pUrlLabel->setEnabled( false );
 					 m_pUrlLineEdit->setEnabled( false );
-					 m_pIconLabel->setEnabled( false );
+					 pIconLabel->setEnabled( false );
 					 m_pIconPathLineEdit->setEnabled( false );
-					 m_pArgumentsLabel->setEnabled( false );
+					 pArgumentsLabel->setEnabled( false );
 					 m_pArgumentsListTextEdit->setEnabled( false );
 					 m_pApplyButton->setToolTip( m_pNameLineEdit->text().count( " " ) != m_pNameLineEdit->text().count() ? "" : "Categories MUST have a name." );
 					 m_pApplyButton->setEnabled( m_pNameLineEdit->text().count( " " ) != m_pNameLineEdit->text().count() );
@@ -553,7 +555,7 @@ ui::CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 			 } );
 }
 
-bool ui::CEditConfigPopup::shouldApplyChanges() const
+bool CEditConfigPopup::shouldApplyChanges() const
 {
 	return this->applyChanges;
 }
