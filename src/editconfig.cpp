@@ -406,7 +406,6 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 			// convert it from a pointer into a reference first.
 			for ( const auto &jsonArrayStringPair : jsonArrayVector )
 			{
-				qInfo() << jsonArrayStringPair.first;
 				auto headerObject = QJsonObject();
 				headerObject["header"] = jsonArrayStringPair.first;
 				headerObject["content"] = *jsonArrayStringPair.second;
@@ -512,7 +511,7 @@ CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 	// An URL doesn't use parameters, and a category only uses m_pNameLineEdit
 	// So we disable and enable fields depending on the combo box's current
 	// index.
-	connect( m_pTypeComboBox, &QComboBox::currentTextChanged, this, [&, pUrlLabel]( const QString &text )
+	connect( m_pTypeComboBox, &QComboBox::currentTextChanged, this, [&, pUrlLabel, pIconLabel, pArgumentsLabel]( const QString &text )
 			 {
 				 if ( text == "Executable" )
 				 {
