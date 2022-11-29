@@ -41,7 +41,7 @@ static QVector<MediaSection_t> Sections(
 	{ {
 		  "Applications",
 		  {
-			  { "Portal 2", ":/resource/logo.png", "process", "${INSTALLDIR}portal2" OS_BIN_SUFFIX, { "" } },
+			  { "Portal 2", ":/resource/logo.png", "process", "steam", { "steam://rungameid/620" } },
 			  { "Hammer World Editor", ":/resource/hammer.png", "process", "${INSTALLDIR}bin/hammer.exe", { "" } },
 			  { "Model Viewer", ":/resource/modelviewer.png", "process", "${INSTALLDIR}bin/hlmv.exe", { "-game", "portal2" } },
 			  { "Face Poser", ":/resource/faceposer.png", "process", "${INSTALLDIR}bin/win64/hlfaceposer.exe", { "-game", "portal2" } },
@@ -56,6 +56,8 @@ static QVector<MediaSection_t> Sections(
 		  "Utility",
 		  {
 			  { "Blender Source Tools", ":/resource/blender.png", "url", "http://steamreview.org/BlenderSourceTools/", { "" } },
+			  { "SourceOps", ":/resource/blender.png", "url", "https://github.com/bonjorno7/SourceOps", { "" } },
+			  { "SourceIO", ":/resource/blender.png", "url", "https://github.com/REDxEYE/SourceIO", { "" } },
 		  },
 	  }
 	} );
