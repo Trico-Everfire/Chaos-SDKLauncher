@@ -101,7 +101,7 @@ CMainView::CMainView( QWidget *pParent ) :
 				// We need to convert the arguments from a
 				// JSON variant list to a QStringList for the
 				// process executor to understand.
-				auto argumentVariantList = contentObject["argumentStringList"].toArray().toVariantList();
+				auto argumentVariantList = contentObject["args"].toArray().toVariantList();
 				QStringList argumentStringList;
 				foreach( QVariant vArgumentItem, argumentVariantList )
 				{
@@ -149,6 +149,8 @@ void CMainView::OpenUrl( const QString &url )
 
 void CMainView::OpenProcess( const QString &execName, const QStringList &params )
 {
+	qInfo() << execName;
+	qInfo() << params;
 	auto pProcess = new QProcess( this );
 	pProcess->start( execName, params );
 }
