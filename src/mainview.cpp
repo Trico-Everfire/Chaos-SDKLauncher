@@ -111,9 +111,9 @@ CMainView::CMainView( QWidget *pParent ) :
 				// We then determine on if the request is a URL or process.
 				// Then execute it accordingly.
 				if ( contentObject["urlType"].toString() == "url" )
-					OpenUrl( contentObject["url"].toString() );
+					OpenUrl( contentObject["url"].toString().replace( "${INSTALLDIR}", m_pInstallDir ) );
 				else if ( contentObject["urlType"].toString() == "process" )
-					OpenProcess( contentObject["url"].toString(), argumentStringList );
+					OpenProcess( contentObject["url"].toString().replace( "${INSTALLDIR}", m_pInstallDir ), argumentStringList.replaceInStrings( "${INSTALLDIR}", m_pInstallDir ) );
 				else
 					qDebug() << "Unknown URL Type: " << contentObject["urlType"].toString();
 			};

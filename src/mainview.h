@@ -17,6 +17,7 @@ namespace ui
 	// This class is responsible for the main window of the application.
 	class CMainView : public QDialog
 	{
+		friend class CEditConfig;
 		Q_OBJECT;
 
 	public:

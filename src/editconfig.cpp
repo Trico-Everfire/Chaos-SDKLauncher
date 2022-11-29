@@ -390,9 +390,9 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 					}
 
 					if ( itemJSONContents["urlType"].toString() == "url" )
-						CMainView::OpenUrl( itemJSONContents["url"].toString() );
+						CMainView::OpenUrl( itemJSONContents["url"].toString().replace( "${INSTALLDIR}", pParentWidget->m_pInstallDir ) );
 					else if ( itemJSONContents["urlType"].toString() == "process" )
-						pParentWidget->OpenProcess( itemJSONContents["url"].toString(), processArguments );
+						pParentWidget->OpenProcess( itemJSONContents["url"].toString().replace( "${INSTALLDIR}", pParentWidget->m_pInstallDir ), processArguments.replaceInStrings( "${INSTALLDIR}", pParentWidget->m_pInstallDir ) );
 					else
 						qDebug() << "Unknown URL Type: " << itemJSONContents["urlType"].toString();
 				};
