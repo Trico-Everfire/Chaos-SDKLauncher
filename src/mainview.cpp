@@ -101,7 +101,7 @@ CMainView::CMainView( QWidget *pParent ) :
 				// We need to convert the arguments from a
 				// JSON variant list to a QStringList for the
 				// process executor to understand.
-				auto argumentVariantList = contentObject["argumentStringList"].toArray().toVariantList();
+				auto argumentVariantList = contentObject["args"].toArray().toVariantList();
 				QStringList argumentStringList;
 				foreach( QVariant vArgumentItem, argumentVariantList )
 				{

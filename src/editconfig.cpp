@@ -381,10 +381,10 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 					// We need to convert the arguments from a
 					// JSON variant list to a QStringList for the
 					// process executor to understand.
-					auto arr = itemJSONContents["processArguments"].toArray().toVariantList();
+					auto variantArgumentList = itemJSONContents["args"].toArray().toVariantList();
 					QStringList processArguments;
 
-					foreach( QVariant vItem, arr )
+					foreach( QVariant vItem, variantArgumentList )
 					{
 						processArguments << vItem.toString();
 					}
