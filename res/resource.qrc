@@ -2,9 +2,8 @@
 <qresource prefix="resource">
 	<file>style.qss</file>
 	<file>logo.png</file>
-	<file>logo_tools.png</file>
 	<file>vdc.png</file>
-	<file>chaos.png</file>
+	<file>blender.png</file>
 	<file>faceposer.png</file>
 	<file>modelviewer.png</file>
 	<file>arrowup.png</file>
@@ -12,7 +11,6 @@
 	<file>edit.png</file>
 	<file>add.png</file>
 	<file>remove.png</file>
-	<file>momentum.png</file>
 	<file>hammer.png</file>
 </qresource>
 </RCC>

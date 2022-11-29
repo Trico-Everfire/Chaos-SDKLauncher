@@ -20,10 +20,10 @@
 #endif
 
 // AppID which we will use for steam.
-// 440000 - P2CE
-// 1400890 - P2CE SDK
-// 1802710 - Momentum Mod
-constexpr int APP_ID = 440000;
+// Portal 2 Authoring Tools: 629
+// Portal 2: 620
+// Portal 2 Map Publisher: 644
+constexpr int APP_ID = 620;
 
 #ifdef USE_STEAM
 // This function is called when steam shuts down.
@@ -61,7 +61,7 @@ int main( int argc, char **argv )
 	qApp->setStyleSheet( styleSheet );
 
 	auto pDialog = new ui::CMainView( nullptr );
-	pDialog->setWindowTitle( "P2:CE SDK Launcher" );
+	pDialog->setWindowTitle( "Portal 2 SDK Launcher" );
 	pDialog->show();
 
 #ifdef USE_STEAM

@@ -40,18 +40,25 @@ struct MediaSection_t
 static QVector<MediaSection_t> Sections(
 	{ {
 		  "Applications",
-		  { { "Hammer World Editor", ":/resource/hammer.png", "process", "${INSTALLDIR}bin/win64/hammer.exe", { "" } },
-			{ "Model Viewer", ":/resource/modelviewer.png", "process", "${INSTALLDIR}bin/win64/hlmv.exe", { "-game", "p2ce" } },
-			{ "Face Poser", ":/resource/faceposer.png", "process", "${INSTALLDIR}bin/win64/hlfaceposer.exe", { "-game", "p2ce" } },
-			{ "P2:CE (Tools Mode)", ":/resource/logo_tools.png", "process", "${INSTALLDIR}p2ce_legacyui" OS_BIN_SUFFIX, { "-tools" } },
-			{ "P2:CE", ":/resource/logo.png", "process", "${INSTALLDIR}p2ce_legacyui" OS_BIN_SUFFIX, { "" } },
-			{ "P2:CE (Panorama) (Tools Mode)", ":/resource/logo_tools.png", "process", "${INSTALLDIR}p2ce" OS_BIN_SUFFIX, { "-tools" } },
-			{ "P2:CE (Panorama)", ":/resource/logo.png", "process", "${INSTALLDIR}p2ce" OS_BIN_SUFFIX, { "" } } },
+		  {
+			  { "Portal 2", ":/resource/logo.png", "process", "${INSTALLDIR}portal2" OS_BIN_SUFFIX, { "" } },
+			  { "Hammer World Editor", ":/resource/hammer.png", "process", "${INSTALLDIR}bin/hammer.exe", { "" } },
+			  { "Model Viewer", ":/resource/modelviewer.png", "process", "${INSTALLDIR}bin/hlmv.exe", { "-game", "portal2" } },
+			  { "Face Poser", ":/resource/faceposer.png", "process", "${INSTALLDIR}bin/win64/hlfaceposer.exe", { "-game", "portal2" } },
+		  },
 	  },
 	  { "Documentation",
-		{ { "Valve Developer Community", ":/resource/vdc.png", "url", "https://developer.valvesoftware.com", { "" } },
-		  { "Chaos Wiki", ":/resource/chaos.png", "url", "https://chaosinitiative.github.io/Wiki/", { "" } },
-		  { "Momentum Wiki", ":/resource/momentum.png", "url", "https://docs.momentum-mod.org/", { "" } } } } } );
+		{
+			{ "Valve Developer Community", ":/resource/vdc.png", "url", "https://developer.valvesoftware.com", { "" } },
+		}
+	  },
+	  {
+		  "Utility",
+		  {
+			  { "Blender Source Tools", ":/resource/blender.png", "url", "http://steamreview.org/BlenderSourceTools/", { "" } },
+		  },
+	  }
+	} );
 
 // This function is used to get the default configuration
 // It's used in the original construction of the config file.
