@@ -149,6 +149,8 @@ void CMainView::OpenUrl( const QString &url )
 
 void CMainView::OpenProcess( const QString &execName, const QStringList &params )
 {
+	qInfo() << execName;
+	qInfo() << params;
 	auto pProcess = new QProcess( this );
 	pProcess->start( execName, params );
 }
