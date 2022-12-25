@@ -3,9 +3,18 @@
 #include <QApplication>
 #include <QFile>
 #include <QIcon>
+#ifdef USE_STEAM
 #include <QMessageBox>
 #include <stdlib.h>
+#endif
 
+// The Steam API is used by other applications.
+// There is the choice to have the application
+// run in "online" and "offline" mode.
+// The Steam API REQUIRES you to have
+// both internet access AND steam running.
+// So we are locking anything that's steam related.
+// behind a steam related if def.
 #ifdef USE_STEAM
 #include <steam_api.h>
 #endif
@@ -17,7 +26,7 @@
 constexpr int APP_ID = 440000;
 
 #ifdef USE_STEAM
-// Main application
+// This function is called when steam shuts down.
 void shutdown_steam()
 {
 	SteamAPI_Shutdown();
@@ -27,23 +36,25 @@ void shutdown_steam()
 int main( int argc, char **argv )
 {
 	// Set the env variables for this application because we don't need steam_appid.txt
+	// We also use these across the application.
 	qputenv( "SteamAppId", QString::number( APP_ID ).toLocal8Bit() );
 	qputenv( "SteamGameId", QString::number( APP_ID ).toLocal8Bit() );
 
 	QApplication app( argc, argv );
 
-	#ifdef USE_STEAM
+#ifdef USE_STEAM
 	// Call Steam
 	if ( !SteamAPI_Init() )
 	{
 		QMessageBox::critical( nullptr, "Fatal Error", "Steam must be running to use this tool (SteamAPI_Init() failed)." );
 		return 1;
 	}
-	#endif
+#endif
 
 	QApplication::setAttribute( Qt::AA_DisableWindowContextHelpButton );
 	QApplication::setWindowIcon( QIcon( ":/resource/logo.png" ) );
 
+	// We set the style from the resources.
 	QFile file( ":/resource/style.qss" );
 	file.open( QFile::ReadOnly );
 	QString styleSheet = QLatin1String( file.readAll() );
@@ -53,9 +64,9 @@ int main( int argc, char **argv )
 	pDialog->setWindowTitle( "P2:CE SDK Launcher" );
 	pDialog->show();
 
-	#ifdef USE_STEAM
+#ifdef USE_STEAM
 	atexit( shutdown_steam );
-	#endif
+#endif
 
 	return QApplication::exec();
 }
