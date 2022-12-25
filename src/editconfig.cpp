@@ -60,7 +60,7 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 	// We then create the 5 buttons responsible for editing individual
 	// instances of executables/urls/categories.
 	pEditConfigurationLayout->addWidget( m_pEditList, 0, 0, 5, 1 );
-	auto pAddCurrentButton = new QPushButton( this );
+	pAddCurrentButton = new QPushButton( this );
 	pAddCurrentButton->setIcon( QIcon( ":/resource/add.png" ) );
 	pEditConfigurationLayout->addWidget( pAddCurrentButton, 0, 1, Qt::AlignTop | Qt::AlignRight );
 	auto pShiftUpButton = new QPushButton( this );

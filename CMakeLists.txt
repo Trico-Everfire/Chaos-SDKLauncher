@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.15)
 project(sdklauncher CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(MZ_DECOMPRESS_ONLY ON)
+
 # Qt
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 	set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/install" CACHE PATH "..." FORCE)
@@ -11,7 +13,7 @@ endif()
 if(UNIX)
 	set(CMAKE_CXX_STANDARD 20)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-	set(QT_INCLUDE "/usr/include/x86_64-linux-gnu/qt5")
+	set(QT_INCLUDE "$ENV{HOME}/Qt/6.4.1/gcc_64/include/")
 endif()
 
 if(WIN32)
@@ -24,14 +26,14 @@ if(WIN32)
 		# CMake has an odd policy that links a special link lib for Qt on newer versions of CMake. Enable it so we don't get spammed, and I get to write less
 		cmake_policy(SET CMP0020 NEW)
 	else()
-		message(FATAL_ERROR "--!@ Please define your QT install dir with -DQT_BASEDIR=C:/your/qt5/here")
+		message(FATAL_ERROR "--!@ Please define your QT install dir with -DQT_BASEDIR=C:/your/Qt6/here")
 	endif()
 endif()
 
 message("Using ${QT_INCLUDE} as our Qt include dir")
-find_package(Qt5 REQUIRED COMPONENTS Widgets Core Gui)
-list(APPEND LINK_LIBS Qt5::Widgets Qt5::Core Qt5::Gui keyvalues SAPP zlib)
-list(APPEND INC_DIRS ${QT_INCLUDE} ${QT_INCLUDE}/QtWidgets ${QT_INCLUDE}/QtGui ${QT_INCLUDE}/QtCore)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Core Gui Network)
+list(APPEND LINK_LIBS Qt6::Widgets Qt6::Core Qt6::Gui Qt6::Network keyvalues SAPP minizip)
+list(APPEND INC_DIRS ${QT_INCLUDE} ${QT_INCLUDE}/QtWidgets ${QT_INCLUDE}/QtGui ${QT_INCLUDE}/QtNetwork ${QT_INCLUDE}/QtCore)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -61,13 +63,16 @@ src/mainview.cpp
 src/main.cpp
 src/config.h
 src/editconfig.cpp
-src/editconfig.h)
+src/editconfig.h
+		src/filedownloader.cpp
+		src/filedownloader.h src/zip_handler.cpp src/zip_handler.h src/string_builder.cpp src/string_builder.h src/modmanager.cpp src/modmanager.h)
+
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/SpeedyKeyV")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/SAPP")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/libz-ng")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/libs/libz-ng-minizip-ng")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/SpeedyKeyV")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/SAPP")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/libz-ng")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/libs/libz-ng-minizip-ng")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 	
 add_executable(${PROJECT_NAME} ${SRC} res/resource.qrc)

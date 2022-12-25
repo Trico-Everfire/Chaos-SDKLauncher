@@ -17,6 +17,7 @@ namespace ui
 		CEditConfig( CMainView *parent );
 		QListWidget *m_pEditList;
 		QPushButton *m_pApplyButton;
+		QPushButton *pAddCurrentButton;
 	};
 
 	// The popup for config items we want to edit.

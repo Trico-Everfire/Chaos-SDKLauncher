@@ -1,13 +1,17 @@
 #pragma once
 
+#include "zip_handler.h"
+
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDialog>
+#include <QDir>
 #include <QLabel>
 #include <QListWidget>
 #include <QProcess>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QSplashScreen>
 #include <QUrl>
 #include <QVBoxLayout>
 #include <QVector>
@@ -18,6 +22,7 @@ namespace ui
 	class CMainView : public QDialog
 	{
 		friend class CEditConfig;
+		friend class CModManager;
 		Q_OBJECT;
 
 	public:

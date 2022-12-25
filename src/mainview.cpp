@@ -3,6 +3,10 @@
 #include "FilesystemSearchProvider.h"
 #include "config.h"
 #include "editconfig.h"
+#include "filedownloader.h"
+#include "modmanager.h"
+#include "mz_strm.h"
+#include "mz_strm_os.h"
 
 #include <QFile>
 #include <QJsonArray>
@@ -10,16 +14,85 @@
 #include <QJsonObject>
 #include <QMessageBox>
 
+//#include "zlib.h"
+//#define CHUNK 16384
+//
+//
+//
+//int inf(FILE *source, FILE *dest)
+//{
+//	int ret;
+//	unsigned have;
+//	z_stream strm;
+//	unsigned char in[CHUNK];
+//	unsigned char out[CHUNK];
+//
+//	/* allocate inflate state */
+//	strm.zalloc = Z_nullptr;
+//	strm.zfree = Z_nullptr;
+//	strm.opaque = Z_nullptr;
+//	strm.avail_in = 0;
+//	strm.next_in = Z_nullptr;
+//	ret = inflateInit(&strm);
+//	if (ret != Z_OK)
+//		return ret;
+//
+//	/* decompress until deflate stream ends or end of file */
+//	do {
+//		strm.avail_in = fread(in, 1, CHUNK, source);
+//		if (ferror(source)) {
+//			(void)inflateEnd(&strm);
+//			return Z_ERRNO;
+//		}
+//		if (strm.avail_in == 0)
+//			break;
+//		strm.next_in = in;
+//
+//		do
+//		{
+//			strm.avail_out = CHUNK;
+//			strm.next_out = out;
+//
+//			ret = inflate( &strm, Z_NO_FLUSH );
+//			assert( ret != Z_STREAM_ERROR ); /* state not clobbered */
+//			switch ( ret )
+//			{
+//				case Z_NEED_DICT:
+//					ret = Z_DATA_ERROR; /* and fall through */
+//				case Z_DATA_ERROR:
+//				case Z_MEM_ERROR:
+//					(void)inflateEnd( &strm );
+//					return ret;
+//			}
+//			have = CHUNK - strm.avail_out;
+//			if ( fwrite( out, 1, have, dest ) != have || ferror( dest ) )
+//			{
+//				(void)inflateEnd( &strm );
+//				return Z_ERRNO;
+//			}
+//		} while (strm.avail_out == 0);
+//		/* done when inflate() says it's done */
+//	} while (ret != Z_STREAM_END);
+//	(void)inflateEnd(&strm);
+//	/* clean up and return */
+//	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
+//}
+
 using namespace ui;
 
 CMainView::CMainView( QWidget *pParent ) :
 	QDialog( pParent )
 {
+	int p2ceAppID = qEnvironmentVariableIntValue( "SteamAppId" );
 	// We call the SAPP library to get the path of the game.
 	// Which in our case is detemined by the env variable SteamAppId.
 	CFileSystemSearchProvider provider;
+	if(!provider.Available() || !provider.BIsAppInstalled(p2ceAppID)){
+		QMessageBox::critical(this,"Missing Game!","P2CE is not installed on this machine or is otherwise unavailable.");
+		exit(EXIT_FAILURE);
+	}
 	char *installDir = new char[1048];
-	provider.GetAppInstallDir( qEnvironmentVariableIntValue( "SteamAppId" ), installDir, 1048 );
+	provider.GetAppInstallDir( p2ceAppID, installDir, 1048 );
 	m_pInstallDir = QString( installDir );
 	delete[] installDir;
 
@@ -36,7 +109,7 @@ CMainView::CMainView( QWidget *pParent ) :
 	auto pSDKListWidgetLayout = new QVBoxLayout( m_pListWidget );
 	pSDKListWidgetLayout->setAlignment( Qt::AlignTop );
 	pSDKListWidgetLayout->setObjectName( "SDKItemLayout" );
-	pSDKLayout->addWidget( m_pListWidget, 0, 0 );
+	pSDKLayout->addWidget( m_pListWidget, 0, 0, 2, 1 );
 
 	// We then read the configuration file.
 	// if we can't find it we create it with a
@@ -133,7 +206,20 @@ CMainView::CMainView( QWidget *pParent ) :
 		editConfigDialog->exec();
 	};
 
+	auto pNewModButton = new QPushButton( this );
+	pNewModButton->setIcon( QIcon( ":/resource/add.png" ) );
+	pSDKLayout->addWidget( pNewModButton, 1, 1, Qt::AlignTop );
+
+	auto onNewModButtonPressedCallback = [&]
+	{
+		auto modManager = new CModManager(this);
+		modManager->exec();
+	};
+
+	pSDKLayout->setRowStretch( 1, 1 );
+
 	connect( pEditButton, &QPushButton::pressed, this, onEditConfigButtonPressedCallback );
+	connect( pNewModButton, &QPushButton::pressed, this, onNewModButtonPressedCallback );
 
 	m_pListWidget->setFixedSize( pSDKListWidgetLayout->sizeHint() );
 	pSDKLayout->setAlignment( Qt::AlignTop );
