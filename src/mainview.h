@@ -32,6 +32,6 @@ namespace ui
 		void OpenProcess( const QString &execName, const QStringList &params );
 
 	private:
-		QString m_pInstallDir;
+		QString m_installDir;
 	};
 } // namespace ui

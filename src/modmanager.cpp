@@ -45,7 +45,7 @@ CModManager::CModManager( CMainView *parent ) :
 	pDirectoryPushButton->setFixedWidth( pDirectoryPushButton->height() );
 	pManagerGridLayout->addWidget( pDirectoryPushButton, 1, 1 );
 	m_pModPathLineEdit = new QLineEdit( this );
-	m_pModPathLineEdit->setText( parent->m_pInstallDir );
+	m_pModPathLineEdit->setText( parent->m_installDir );
 	m_pModPathLineEdit->setDisabled( true );
 	pManagerGridLayout->addWidget( m_pModPathLineEdit, 1, 2 );
 	auto pCreateCancelButtonBox = new QDialogButtonBox( this );
@@ -216,7 +216,7 @@ void CModManager::modCreationHandler()
 				 pEditConfigPopup->setWindowTitle( modName + " Config Entry" );
 				 pEditConfigPopup->m_pTypeComboBox->setCurrentIndex( 0 );
 				 pEditConfigPopup->m_pNameLineEdit->setText( modName );
-				 pEditConfigPopup->m_pUrlLineEdit->setText( mainParent->m_pInstallDir + "p2ce" + OS_BIN_SUFFIX );
+				 pEditConfigPopup->m_pUrlLineEdit->setText( mainParent->m_installDir + "p2ce" + OS_BIN_SUFFIX );
 				 pEditConfigPopup->m_pArgumentsListTextEdit->append( "-game" );
 				 pEditConfigPopup->m_pArgumentsListTextEdit->append( "'" + modPath + modName + "'" );
 				 pEditConfigPopup->exec();

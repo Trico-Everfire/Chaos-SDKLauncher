@@ -94,7 +94,7 @@ CMainView::CMainView( QWidget *pParent ) :
 	}
 	char *installDir = new char[1048];
 	provider.GetAppInstallDir( p2ceAppID, installDir, 1048 );
-	m_pInstallDir = QString( installDir );
+	m_installDir = QString( installDir );
 	delete[] installDir;
 
 	// We create a QGridLayout to make the layout between the
@@ -185,9 +185,9 @@ CMainView::CMainView( QWidget *pParent ) :
 				// We then determine on if the request is a URL or process.
 				// Then execute it accordingly.
 				if ( contentObject["urlType"].toString() == "url" )
-					OpenUrl( contentObject["url"].toString().replace( "${INSTALLDIR}", m_pInstallDir ) );
+					OpenUrl( contentObject["url"].toString().replace( "${INSTALLDIR}", m_installDir ) );
 				else if ( contentObject["urlType"].toString() == "process" )
-					OpenProcess( contentObject["url"].toString().replace( "${INSTALLDIR}", m_pInstallDir ), argumentStringList.replaceInStrings( "${INSTALLDIR}", m_pInstallDir ) );
+					OpenProcess( contentObject["url"].toString().replace( "${INSTALLDIR}", m_installDir ), argumentStringList.replaceInStrings( "${INSTALLDIR}", m_installDir ) );
 				else
 					qDebug() << "Unknown URL Type: " << contentObject["urlType"].toString();
 			};

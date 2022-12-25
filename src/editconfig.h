@@ -23,7 +23,7 @@ namespace ui
 	// The popup for config items we want to edit.
 	class CEditConfigPopup : public QDialog
 	{
-		bool applyChanges = false;
+		bool m_applyChanges = false;
 
 	public:
 		CEditConfigPopup( CEditConfig *parent );
@@ -36,13 +36,3 @@ namespace ui
 		QPushButton *m_pApplyButton;
 	};
 } // namespace ui
-
-//{
-//	"args": [
-//		"-tools"
-//],
-//	"icon": ":/resource/logo_tools.png",
-//	"name": "P2:CE (Panorama) (Tools Mode)",
-//	"url": "${INSTALLDIR}p2ce.sh",
-//	"urlType": "process"
-//},

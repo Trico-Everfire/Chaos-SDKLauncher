@@ -390,9 +390,9 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 					}
 
 					if ( itemJSONContents["urlType"].toString() == "url" )
-						CMainView::OpenUrl( itemJSONContents["url"].toString().replace( "${INSTALLDIR}", pParentWidget->m_pInstallDir ) );
+						CMainView::OpenUrl( itemJSONContents["url"].toString().replace( "${INSTALLDIR}", pParentWidget->m_installDir ) );
 					else if ( itemJSONContents["urlType"].toString() == "process" )
-						pParentWidget->OpenProcess( itemJSONContents["url"].toString().replace( "${INSTALLDIR}", pParentWidget->m_pInstallDir ), processArguments.replaceInStrings( "${INSTALLDIR}", pParentWidget->m_pInstallDir ) );
+						pParentWidget->OpenProcess( itemJSONContents["url"].toString().replace( "${INSTALLDIR}", pParentWidget->m_installDir ), processArguments.replaceInStrings( "${INSTALLDIR}", pParentWidget->m_installDir ) );
 					else
 						qDebug() << "Unknown URL Type: " << itemJSONContents["urlType"].toString();
 				};
@@ -502,7 +502,7 @@ CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 			 {
 				 if ( button->text() == "Apply" )
 				 {
-					 this->applyChanges = true;
+					 this->m_applyChanges = true;
 				 }
 				 this->close();
 			 } );
@@ -556,5 +556,5 @@ CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 
 bool CEditConfigPopup::shouldApplyChanges() const
 {
-	return this->applyChanges;
+	return this->m_applyChanges;
 }
