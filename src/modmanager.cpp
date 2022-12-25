@@ -220,61 +220,61 @@ void CModManager::modCreationHandler()
 				 pEditConfigPopup->m_pArgumentsListTextEdit->append( "-game" );
 				 pEditConfigPopup->m_pArgumentsListTextEdit->append( "'" + modPath + modName + "'" );
 				 pEditConfigPopup->exec();
-				 if ( !pEditConfigPopup->shouldApplyChanges() )
-					 return;
 
-				 // We then apply the visuals of the item.
-				 // depending on the type, it'll receive JSON data.
-				 // it's either only the name and type,
-				 // name, type, icon and url, or name, type, url, icon and arguments.
-				 auto pNewListItem = new QListWidgetItem();
-				 pNewListItem->setText( pEditConfigPopup->m_pNameLineEdit->text() );
-				 pNewListItem->setIcon( QIcon() );
-				 if ( QFileInfo::exists( pEditConfigPopup->m_pIconPathLineEdit->text() ) )
-					 pNewListItem->setIcon( QIcon( pEditConfigPopup->m_pIconPathLineEdit->text() ) );
+				 if ( pEditConfigPopup->shouldApplyChanges() ){
+					 // We then apply the visuals of the item.
+					 // depending on the type, it'll receive JSON data.
+					 // it's either only the name and type,
+					 // name, type, icon and url, or name, type, url, icon and arguments.
+					 auto pNewListItem = new QListWidgetItem();
+					 pNewListItem->setText( pEditConfigPopup->m_pNameLineEdit->text() );
+					 pNewListItem->setIcon( QIcon() );
+					 if ( QFileInfo::exists( pEditConfigPopup->m_pIconPathLineEdit->text() ) )
+						 pNewListItem->setIcon( QIcon( pEditConfigPopup->m_pIconPathLineEdit->text() ) );
 
-				 auto listItemJSONContents = QJsonObject();
-				 listItemJSONContents["name"] = pEditConfigPopup->m_pNameLineEdit->text();
-				 if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 2 )
-				 {
-					 // Categories are highlighted in bold to distinguish
-					 // them from buttons.
-					 // Provided they need the least care,
-					 // We do all what's needed and return here to
-					 // make things easier.
-					 auto listItemFont = pNewListItem->font();
-					 listItemFont.setBold( true );
-					 pNewListItem->setFont( listItemFont );
-					 listItemJSONContents["urlType"] = "category";
+					 auto listItemJSONContents = QJsonObject();
+					 listItemJSONContents["name"] = pEditConfigPopup->m_pNameLineEdit->text();
+					 if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 2 )
+					 {
+						 // Categories are highlighted in bold to distinguish
+						 // them from buttons.
+						 // Provided they need the least care,
+						 // We do all what's needed and return here to
+						 // make things easier.
+						 auto listItemFont = pNewListItem->font();
+						 listItemFont.setBold( true );
+						 pNewListItem->setFont( listItemFont );
+						 listItemJSONContents["urlType"] = "category";
+						 pNewListItem->setData( Qt::UserRole, listItemJSONContents );
+						 editCFG->m_pEditList->currentRowChanged( 0 );
+						 int currentRow = editCFG->m_pEditList->row( pCurrentItem );
+						 editCFG->m_pEditList->insertItem( currentRow + 1, pNewListItem );
+						 return;
+					 }
+					 listItemJSONContents["url"] = pEditConfigPopup->m_pUrlLineEdit->text();
+					 listItemJSONContents["icon"] = pEditConfigPopup->m_pIconPathLineEdit->text();
+					 listItemJSONContents["urlType"] = "url";
+					 if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 0 )
+					 {
+						 // We need to convert the arguments from a
+						 // QString to a QStringList.
+						 auto jsonArgumentList = QJsonArray();
+						 foreach( auto listArgument, pEditConfigPopup->m_pArgumentsListTextEdit->toPlainText().split( " " ) )
+						 {
+							 jsonArgumentList.append( listArgument );
+						 }
+						 listItemJSONContents["urlType"] = "process";
+						 listItemJSONContents["args"] = jsonArgumentList;
+					 }
+					 // We then store the JSON data and call the list's row changed function.
 					 pNewListItem->setData( Qt::UserRole, listItemJSONContents );
 					 editCFG->m_pEditList->currentRowChanged( 0 );
-					 int currentRow = editCFG->m_pEditList->row( pCurrentItem );
+
+					 int currentRow = pCurrentItem ? editCFG->m_pEditList->row( pCurrentItem ) : 0;
 					 editCFG->m_pEditList->insertItem( currentRow + 1, pNewListItem );
-					 return;
-				 }
-				 listItemJSONContents["url"] = pEditConfigPopup->m_pUrlLineEdit->text();
-				 listItemJSONContents["icon"] = pEditConfigPopup->m_pIconPathLineEdit->text();
-				 listItemJSONContents["urlType"] = "url";
-				 if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 0 )
-				 {
-					 // We need to convert the arguments from a
-					 // QString to a QStringList.
-					 auto jsonArgumentList = QJsonArray();
-					 foreach( auto listArgument, pEditConfigPopup->m_pArgumentsListTextEdit->toPlainText().split( " " ) )
-					 {
-						 jsonArgumentList.append( listArgument );
-					 }
-					 listItemJSONContents["urlType"] = "process";
-					 listItemJSONContents["args"] = jsonArgumentList;
-				 }
-				 // We then store the JSON data and call the list's row changed function.
-				 pNewListItem->setData( Qt::UserRole, listItemJSONContents );
-				 editCFG->m_pEditList->currentRowChanged( 0 );
 
-				 int currentRow = pCurrentItem ? editCFG->m_pEditList->row( pCurrentItem ) : 0;
-				 editCFG->m_pEditList->insertItem( currentRow + 1, pNewListItem );
-
-				 editCFG->m_pApplyButton->click();
+					 editCFG->m_pApplyButton->click();
+				 }
 				 delete editCFG;
 
 				 // We alter the gameinfo.txt to reflect the mod's name.
