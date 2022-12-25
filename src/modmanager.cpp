@@ -171,7 +171,8 @@ void CModManager::modCreationHandler()
 		return;
 	}
 
-	if( !QFileInfo( QDir::tempPath() ).isWritable() ){
+	if ( !QFileInfo( QDir::tempPath() ).isWritable() )
+	{
 		QMessageBox::critical( this, "ACCESS ERROR!!", "Cannot write to " + QDir::tempPath() );
 		return;
 	}
@@ -195,7 +196,8 @@ void CModManager::modCreationHandler()
 			 {
 				 qInfo() << "UNZIPPING!";
 				 pDownloadSplashScreen->showMessage( "ZUP Downloaded, Extracting..." );
-				 if(!modZipHandler( QFileInfo( QDir::tempPath() + "/p2ce-mod-template.zip" ), pDownloadSplashScreen, m_pModNameLineEdit->text(), m_pModPathLineEdit->text() )){
+				 if ( !modZipHandler( QFileInfo( QDir::tempPath() + "/p2ce-mod-template.zip" ), pDownloadSplashScreen, m_pModNameLineEdit->text(), m_pModPathLineEdit->text() ) )
+				 {
 					 QMessageBox::critical( this, "UNZIP ERROR", "Cannot unzip mod template." );
 					 pDownloadSplashScreen->close();
 					 return;

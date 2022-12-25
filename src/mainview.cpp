@@ -14,12 +14,12 @@
 #include <QJsonObject>
 #include <QMessageBox>
 
-//#include "zlib.h"
-//#define CHUNK 16384
+// #include "zlib.h"
+// #define CHUNK 16384
 //
 //
 //
-//int inf(FILE *source, FILE *dest)
+// int inf(FILE *source, FILE *dest)
 //{
 //	int ret;
 //	unsigned have;
@@ -76,7 +76,7 @@
 //	(void)inflateEnd(&strm);
 //	/* clean up and return */
 //	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
-//}
+// }
 
 using namespace ui;
 
@@ -87,9 +87,10 @@ CMainView::CMainView( QWidget *pParent ) :
 	// We call the SAPP library to get the path of the game.
 	// Which in our case is detemined by the env variable SteamAppId.
 	CFileSystemSearchProvider provider;
-	if(!provider.Available() || !provider.BIsAppInstalled(p2ceAppID)){
-		QMessageBox::critical(this,"Missing Game!","P2CE is not installed on this machine or is otherwise unavailable.");
-		exit(EXIT_FAILURE);
+	if ( !provider.Available() || !provider.BIsAppInstalled( p2ceAppID ) )
+	{
+		QMessageBox::critical( this, "Missing Game!", "P2CE is not installed on this machine or is otherwise unavailable." );
+		exit( EXIT_FAILURE );
 	}
 	char *installDir = new char[1048];
 	provider.GetAppInstallDir( p2ceAppID, installDir, 1048 );
@@ -212,7 +213,7 @@ CMainView::CMainView( QWidget *pParent ) :
 
 	auto onNewModButtonPressedCallback = [&]
 	{
-		auto modManager = new CModManager(this);
+		auto modManager = new CModManager( this );
 		modManager->exec();
 	};
 

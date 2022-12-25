@@ -7,9 +7,9 @@
 
 #include "mainview.h"
 
+#include <QDialog>
 #include <QFileInfo>
 #include <QSplashScreen>
-#include <QDialog>
 
 using namespace ui;
 namespace ui
@@ -21,10 +21,10 @@ namespace ui
 
 	private:
 		void modCreationHandler();
-		static bool modZipHandler( const QFileInfo& zFile, QSplashScreen *sps, const QString& modName, const QString& modPath );
+		static bool modZipHandler( const QFileInfo &zFile, QSplashScreen *sps, const QString &modName, const QString &modPath );
 		QLineEdit *m_pModNameLineEdit;
 		QLineEdit *m_pModPathLineEdit;
 		QPushButton *m_pCreateButton;
 	};
-}
+} // namespace ui
 #endif // SDKLAUNCHER_MODMANAGER_H

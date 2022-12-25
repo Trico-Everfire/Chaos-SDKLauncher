@@ -47,7 +47,6 @@ static QVector<MediaSection_t> Sections(
 		  { "Chaos Wiki", ":/resource/chaos.png", "url", "https://chaosinitiative.github.io/Wiki/", { "" } },
 		  { "Momentum Wiki", ":/resource/momentum.png", "url", "https://docs.momentum-mod.org/", { "" } } } } } );
 
-
 QJsonDocument defaultConfig()
 {
 	QJsonDocument doc;

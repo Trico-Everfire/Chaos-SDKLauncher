@@ -23,13 +23,13 @@ typedef struct str_builder str_builder_t;
  *
  * return str builder.
  */
-str_builder_t *str_builder_create(void);
+str_builder_t *str_builder_create( void );
 
 /*! Destroy a str builder.
  *
  * param[in,out] sb Builder.
  */
-void str_builder_destroy(str_builder_t *sb);
+void str_builder_destroy( str_builder_t *sb );
 
 /* - - - - */
 
@@ -40,21 +40,21 @@ void str_builder_destroy(str_builder_t *sb);
  * param[in]     len Length of string to add. If 0, strlen will be called
  *                internally to determine length.
  */
-void str_builder_add_str(str_builder_t *sb, const char *str, size_t len);
+void str_builder_add_str( str_builder_t *sb, const char *str, size_t len );
 
 /*! Add a character to the builder.
  *
  * param[in,out] sb Builder.
  * param[in]     c  Character.
  */
-void str_builder_add_char(str_builder_t *sb, char c);
+void str_builder_add_char( str_builder_t *sb, char c );
 
 /*! Add an integer as to the builder.
  *
  * param[in,out] sb  Builder.
  * param[in]     val Int to add.
  */
-void str_builder_add_int(str_builder_t *sb, int val);
+void str_builder_add_int( str_builder_t *sb, int val );
 
 /* - - - - */
 
@@ -62,7 +62,7 @@ void str_builder_add_int(str_builder_t *sb, int val);
  *
  * param[in,out] sb  Builder.
  */
-void str_builder_clear(str_builder_t *sb);
+void str_builder_clear( str_builder_t *sb );
 
 /*! Remove data from the end of the builder.
  *
@@ -70,14 +70,14 @@ void str_builder_clear(str_builder_t *sb);
  * param[in]     len The new length of the string.
  *                    Anything after this length is removed.
  */
-void str_builder_truncate(str_builder_t *sb, size_t len);
+void str_builder_truncate( str_builder_t *sb, size_t len );
 
 /*! Remove data from the beginning of the builder.
  *
  * param[in,out] sb  Builder.
  * param[in]     len The length to remove.
  */
-void str_builder_drop(str_builder_t *sb, size_t len);
+void str_builder_drop( str_builder_t *sb, size_t len );
 
 /* - - - - */
 
@@ -87,7 +87,7 @@ void str_builder_drop(str_builder_t *sb, size_t len);
  *
  * return Length.
  */
-size_t str_builder_len(const str_builder_t *sb);
+size_t str_builder_len( const str_builder_t *sb );
 
 /*! A pointer to the internal buffer with the builder's string data.
  *
@@ -97,7 +97,7 @@ size_t str_builder_len(const str_builder_t *sb);
  *
  * return Pointer to internal string data.
  */
-const char *str_builder_peek(const str_builder_t *sb);
+const char *str_builder_peek( const str_builder_t *sb );
 
 /*! Return a copy of the string data.
  *
@@ -106,7 +106,7 @@ const char *str_builder_peek(const str_builder_t *sb);
  *
  * return Copy of the internal string data.
  */
-char *str_builder_dump(const str_builder_t *sb, size_t *len);
+char *str_builder_dump( const str_builder_t *sb, size_t *len );
 
 /*! @}
  */
