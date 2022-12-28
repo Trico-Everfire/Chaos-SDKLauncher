@@ -4,6 +4,7 @@
 #include "config.h"
 #include "editconfig.h"
 #include "filedownloader.h"
+#include "libs/QConsoleWidget/QConsoleWidget.h"
 #include "modmanager.h"
 #include "mz_strm.h"
 #include "mz_strm_os.h"
@@ -236,8 +237,27 @@ void CMainView::OpenUrl( const QString &url )
 
 void CMainView::OpenProcess( const QString &execName, const QStringList &params )
 {
-	qInfo() << execName;
-	qInfo() << params;
 	auto pProcess = new QProcess( this );
+	pProcess->setReadChannel( QProcess::StandardOutput );
+	pProcess->setProcessChannelMode( QProcess::MergedChannels );
+	pProcess->setCurrentReadChannel( QProcess::StandardOutput );
 	pProcess->start( execName, params );
+
+	QConsoleWidget *pConsoleWidget = new QConsoleWidget();
+	pConsoleWidget->device()->open( QIODevice::WriteOnly );
+	pConsoleWidget->show();
+
+	QTextStream *pTextStream = new QTextStream( pConsoleWidget->device() );
+
+	connect( pProcess, &QProcess::readyReadStandardOutput, pConsoleWidget, [pProcess, pTextStream]()
+			 {
+				 *pTextStream << ( pProcess->readAllStandardOutput() ) << Qt::endl;
+			 } );
+	connect( pProcess, &QProcess::finished, pProcess, [pProcess, pTextStream, pConsoleWidget]( int exitCode, QProcess::ExitStatus exitStatus )
+			 {
+				 delete pProcess;
+				 delete pTextStream;
+			 } );
+
+	pConsoleWidget->setAttribute( Qt::WA_DeleteOnClose );
 }
