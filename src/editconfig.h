@@ -13,6 +13,14 @@ namespace ui
 	// The main edit config dialog class
 	class CEditConfig : public QDialog
 	{
+		enum Quotations
+		{
+			isNone = 0,
+			isSingleQuote,
+			isDoubleQuote
+		};
+		static QJsonArray commandLineParser( const QString &argList );
+
 	public:
 		CEditConfig( CMainView *parent );
 		QListWidget *m_pEditList;

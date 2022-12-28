@@ -161,11 +161,8 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 		{
 			// We need to convert the arguments from a
 			// QString to a QStringList.
-			auto jsonArgumentList = QJsonArray();
-			foreach( auto listArgument, pEditConfigPopup->m_pArgumentsListTextEdit->toPlainText().split( " " ) )
-			{
-				jsonArgumentList.append( listArgument );
-			}
+			auto jsonArgumentList = commandLineParser(pEditConfigPopup->m_pArgumentsListTextEdit->toPlainText());
+			qInfo() << jsonArgumentList;
 			listItemJSONContents["urlType"] = "process";
 			listItemJSONContents["args"] = jsonArgumentList;
 		}
@@ -271,13 +268,8 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 		newListItemJSONContents["urlType"] = "url";
 		if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 0 )
 		{
-			// We need to convert the arguments from a
-			// QString to a QStringList.
-			auto newJSONArgumentList = QJsonArray();
-			foreach( auto arg, pEditConfigPopup->m_pArgumentsListTextEdit->toPlainText().split( " " ) )
-			{
-				newJSONArgumentList.append( arg );
-			}
+			auto newJSONArgumentList = commandLineParser(pEditConfigPopup->m_pArgumentsListTextEdit->toPlainText());
+			qInfo() << newJSONArgumentList;
 			newListItemJSONContents["urlType"] = "process";
 			newListItemJSONContents["args"] = newJSONArgumentList;
 		}
@@ -440,6 +432,69 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 	this->setFocus( Qt::NoFocusReason );
 }
 
+
+QJsonArray CEditConfig::commandLineParser(const QString& argList)
+{
+	auto newJSONArgumentList = QJsonArray();
+	auto stringConstructor = QString();
+
+	Quotations quotationState = isNone;
+	bool isEscaped = false;
+
+	foreach( auto arg, argList.split( "" ) )
+	{
+		if( quotationState != isNone || ( quotationState == isNone && arg != " "))
+			stringConstructor.append(arg);
+
+		if(!isEscaped && arg != R"(\)")
+		{
+			isEscaped = true;
+			continue;
+		}
+
+		if( quotationState == isNone && arg == "'")
+		{
+			quotationState = isSingleQuote;
+			continue;
+		}
+
+		if( quotationState == isNone && arg == R"(")")
+		{
+			quotationState = isDoubleQuote;
+			continue;
+		}
+
+		if( quotationState == isNone && arg == " "){
+			if(stringConstructor.isEmpty())
+				continue;
+			newJSONArgumentList.append( stringConstructor );
+			stringConstructor.clear();
+			continue;
+		}
+
+		if( quotationState == isSingleQuote && arg == "'")
+		{
+			newJSONArgumentList.append( stringConstructor );
+			stringConstructor.clear();
+			quotationState = isNone;
+			continue;
+		}
+
+		if( quotationState == isDoubleQuote && arg == R"(")")
+		{
+			newJSONArgumentList.append( stringConstructor );
+			stringConstructor.clear();
+			quotationState = isNone;
+			continue;
+		}
+		isEscaped = false;
+	}
+	if(!stringConstructor.isEmpty())
+		newJSONArgumentList.append( stringConstructor );
+
+	return newJSONArgumentList;
+}
+
 CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 	QDialog( parent )
 {
@@ -491,8 +546,8 @@ CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 			 {
 				 if ( m_pTypeComboBox->currentIndex() == 2 )
 				 {
-					 m_pApplyButton->setEnabled( text.count( " " ) != text.count() );
-					 m_pApplyButton->setToolTip( m_pNameLineEdit->text().count( " " ) != m_pNameLineEdit->text().count() ? "" : "Categories MUST have a name." );
+					 m_pApplyButton->setEnabled( text.count( " " ) != text.length() );
+					 m_pApplyButton->setToolTip( m_pNameLineEdit->text().count( " " ) != m_pNameLineEdit->text().length() ? "" : "Categories MUST have a name." );
 				 }
 			 } );
 
@@ -547,8 +602,8 @@ CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 					 m_pIconPathLineEdit->setEnabled( false );
 					 pArgumentsLabel->setEnabled( false );
 					 m_pArgumentsListTextEdit->setEnabled( false );
-					 m_pApplyButton->setToolTip( m_pNameLineEdit->text().count( " " ) != m_pNameLineEdit->text().count() ? "" : "Categories MUST have a name." );
-					 m_pApplyButton->setEnabled( m_pNameLineEdit->text().count( " " ) != m_pNameLineEdit->text().count() );
+					 m_pApplyButton->setToolTip( m_pNameLineEdit->text().count( " " ) != m_pNameLineEdit->text().length() ? "" : "Categories MUST have a name." );
+					 m_pApplyButton->setEnabled( m_pNameLineEdit->text().count( " " ) != m_pNameLineEdit->text().length() );
 					 return;
 				 }
 			 } );
