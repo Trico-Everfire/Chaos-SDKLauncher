@@ -3,81 +3,13 @@
 #include "FilesystemSearchProvider.h"
 #include "config.h"
 #include "editconfig.h"
-#include "filedownloader.h"
 #include "libs/QConsoleWidget/QConsoleWidget.h"
 #include "modmanager.h"
-#include "mz_strm.h"
-#include "mz_strm_os.h"
 
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QJsonObject>
 #include <QMessageBox>
-
-// #include "zlib.h"
-// #define CHUNK 16384
-//
-//
-//
-// int inf(FILE *source, FILE *dest)
-//{
-//	int ret;
-//	unsigned have;
-//	z_stream strm;
-//	unsigned char in[CHUNK];
-//	unsigned char out[CHUNK];
-//
-//	/* allocate inflate state */
-//	strm.zalloc = Z_nullptr;
-//	strm.zfree = Z_nullptr;
-//	strm.opaque = Z_nullptr;
-//	strm.avail_in = 0;
-//	strm.next_in = Z_nullptr;
-//	ret = inflateInit(&strm);
-//	if (ret != Z_OK)
-//		return ret;
-//
-//	/* decompress until deflate stream ends or end of file */
-//	do {
-//		strm.avail_in = fread(in, 1, CHUNK, source);
-//		if (ferror(source)) {
-//			(void)inflateEnd(&strm);
-//			return Z_ERRNO;
-//		}
-//		if (strm.avail_in == 0)
-//			break;
-//		strm.next_in = in;
-//
-//		do
-//		{
-//			strm.avail_out = CHUNK;
-//			strm.next_out = out;
-//
-//			ret = inflate( &strm, Z_NO_FLUSH );
-//			assert( ret != Z_STREAM_ERROR ); /* state not clobbered */
-//			switch ( ret )
-//			{
-//				case Z_NEED_DICT:
-//					ret = Z_DATA_ERROR; /* and fall through */
-//				case Z_DATA_ERROR:
-//				case Z_MEM_ERROR:
-//					(void)inflateEnd( &strm );
-//					return ret;
-//			}
-//			have = CHUNK - strm.avail_out;
-//			if ( fwrite( out, 1, have, dest ) != have || ferror( dest ) )
-//			{
-//				(void)inflateEnd( &strm );
-//				return Z_ERRNO;
-//			}
-//		} while (strm.avail_out == 0);
-//		/* done when inflate() says it's done */
-//	} while (ret != Z_STREAM_END);
-//	(void)inflateEnd(&strm);
-//	/* clean up and return */
-//	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
-// }
 
 using namespace ui;
 
@@ -142,11 +74,11 @@ CMainView::CMainView( QWidget *pParent ) :
 	// We now populate our list widget with the configuration's content.
 	// This JSON information is handled by QT and is only read here.
 	QJsonArray JSONConfig = JSONConfigDocument.array();
-	for ( auto it = JSONConfig.begin(); it != JSONConfig.end(); it++ )
+	for (const auto & it : JSONConfig)
 	{
 		// We first get the main header object from the json config array/
 		// then set the first header label and append it to the layout.
-		auto HeaderObject = it->toObject();
+		auto HeaderObject = it.toObject();
 		auto pHeader = new QLabel( HeaderObject["header"].toString(), this );
 		pHeader->setObjectName( "Header" );
 		pSDKListWidgetLayout->addWidget( pHeader );
@@ -249,9 +181,12 @@ void CMainView::OpenProcess( const QString &execName, const QStringList &params 
 
 	QTextStream *pTextStream = new QTextStream( pConsoleWidget->device() );
 
-	connect( pProcess, &QProcess::readyReadStandardOutput, pConsoleWidget, [pProcess, pTextStream]()
+	//We read from both channels, apparently it always returns the cout in the cerr channel, so
+	//for sanity's sake we output both channels.
+	connect( pProcess, &QProcess::channelReadyRead, pConsoleWidget, [pProcess, pTextStream](int channel)
 			 {
-				 *pTextStream << ( pProcess->readAllStandardOutput() ) << Qt::endl;
+				 if(channel < 2)
+				 	*pTextStream << ( pProcess->readAll() ) << Qt::flush;
 			 } );
 	connect( pProcess, &QProcess::finished, pProcess, [pProcess, pTextStream, pConsoleWidget]( int exitCode, QProcess::ExitStatus exitStatus )
 			 {
