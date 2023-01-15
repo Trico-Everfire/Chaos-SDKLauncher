@@ -3,80 +3,12 @@
 #include "FilesystemSearchProvider.h"
 #include "config.h"
 #include "editconfig.h"
-#include "filedownloader.h"
 #include "modmanager.h"
-#include "mz_strm.h"
-#include "mz_strm_os.h"
 
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QJsonObject>
 #include <QMessageBox>
-
-// #include "zlib.h"
-// #define CHUNK 16384
-//
-//
-//
-// int inf(FILE *source, FILE *dest)
-//{
-//	int ret;
-//	unsigned have;
-//	z_stream strm;
-//	unsigned char in[CHUNK];
-//	unsigned char out[CHUNK];
-//
-//	/* allocate inflate state */
-//	strm.zalloc = Z_nullptr;
-//	strm.zfree = Z_nullptr;
-//	strm.opaque = Z_nullptr;
-//	strm.avail_in = 0;
-//	strm.next_in = Z_nullptr;
-//	ret = inflateInit(&strm);
-//	if (ret != Z_OK)
-//		return ret;
-//
-//	/* decompress until deflate stream ends or end of file */
-//	do {
-//		strm.avail_in = fread(in, 1, CHUNK, source);
-//		if (ferror(source)) {
-//			(void)inflateEnd(&strm);
-//			return Z_ERRNO;
-//		}
-//		if (strm.avail_in == 0)
-//			break;
-//		strm.next_in = in;
-//
-//		do
-//		{
-//			strm.avail_out = CHUNK;
-//			strm.next_out = out;
-//
-//			ret = inflate( &strm, Z_NO_FLUSH );
-//			assert( ret != Z_STREAM_ERROR ); /* state not clobbered */
-//			switch ( ret )
-//			{
-//				case Z_NEED_DICT:
-//					ret = Z_DATA_ERROR; /* and fall through */
-//				case Z_DATA_ERROR:
-//				case Z_MEM_ERROR:
-//					(void)inflateEnd( &strm );
-//					return ret;
-//			}
-//			have = CHUNK - strm.avail_out;
-//			if ( fwrite( out, 1, have, dest ) != have || ferror( dest ) )
-//			{
-//				(void)inflateEnd( &strm );
-//				return Z_ERRNO;
-//			}
-//		} while (strm.avail_out == 0);
-//		/* done when inflate() says it's done */
-//	} while (ret != Z_STREAM_END);
-//	(void)inflateEnd(&strm);
-//	/* clean up and return */
-//	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
-// }
 
 using namespace ui;
 
@@ -201,7 +133,7 @@ CMainView::CMainView( QWidget *pParent ) :
 	auto pEditButton = new QPushButton( this );
 	pEditButton->setIcon( QIcon( ":/resource/edit.png" ) );
 	pSDKLayout->addWidget( pEditButton, 0, 1, Qt::AlignTop );
-	auto onEditConfigButtonPressedCallback = [&]
+	auto onEditConfigButtonPressedCallback = [this]
 	{
 		auto editConfigDialog = new CEditConfig( this );
 		editConfigDialog->exec();
@@ -211,7 +143,7 @@ CMainView::CMainView( QWidget *pParent ) :
 	pNewModButton->setIcon( QIcon( ":/resource/add.png" ) );
 	pSDKLayout->addWidget( pNewModButton, 1, 1, Qt::AlignTop );
 
-	auto onNewModButtonPressedCallback = [&]
+	auto onNewModButtonPressedCallback = [this]
 	{
 		auto modManager = new CModManager( this );
 		modManager->exec();

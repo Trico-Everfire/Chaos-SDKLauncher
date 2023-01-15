@@ -1,7 +1,3 @@
-//
-// Created by trico on 14-12-22.
-//
-
 #include "modmanager.h"
 
 #ifdef _WIN32
@@ -87,8 +83,6 @@ bool CModManager::modZipHandler( const QFileInfo &zFile, QSplashScreen *sps, con
 {
 	unzFile uzfile;
 	char *zfilename;
-	unsigned char *buf;
-	size_t buflen;
 	zipper_result_t zipper_ret;
 	uint64_t len;
 
@@ -114,15 +108,16 @@ bool CModManager::modZipHandler( const QFileInfo &zFile, QSplashScreen *sps, con
 			QDir( modPath ).mkpath( newDir );
 			sps->showMessage( QString( "Creating dir: " ) + newDir );
 			unzGoToNextFile( uzfile );
-			free( zfilename );
+			delete ( zfilename );
 			continue;
 		}
 
 		QString fixedFilePath = QString( zfilename ).replace( firstDir, modName + "/" );
 
 		len = zipper_filesize( uzfile );
+		QByteArray buf = QByteArray();
 		sps->showMessage( QString( "reading file (" ) + QString::number( len ) + " bytes): " + fixedFilePath );
-		zipper_ret = zipper_read_buf( uzfile, &buf, &buflen );
+		zipper_ret = zipper_read( uzfile, buf );
 		if ( zipper_ret == ZIPPER_RESULT_ERROR )
 		{
 			free( zfilename );
@@ -135,9 +130,8 @@ bool CModManager::modZipHandler( const QFileInfo &zFile, QSplashScreen *sps, con
 			free( zfilename );
 			return false;
 		}
-		file.write( reinterpret_cast<const char *>( buf ), buflen );
+		file.write( buf );
 		file.close();
-		free( buf );
 		free( zfilename );
 	} while ( zipper_ret == ZIPPER_RESULT_SUCCESS );
 

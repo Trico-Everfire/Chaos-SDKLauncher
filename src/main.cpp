@@ -51,8 +51,6 @@ int main( int argc, char **argv )
 	}
 #endif
 
-	// AA_DisableWindowContextHelpButton
-	// QApplication::setAttribute( Qt::AA_DisableWindowContextHelpButton  );
 	QApplication::setWindowIcon( QIcon( ":/resource/logo.png" ) );
 
 	// We set the style from the resources.
