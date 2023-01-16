@@ -15,18 +15,18 @@ using namespace ui;
 CMainView::CMainView( QWidget *pParent ) :
 	QDialog( pParent )
 {
-	int p2ceAppID = qEnvironmentVariableIntValue( "SteamAppId" );
+	int gameAppID = qEnvironmentVariableIntValue( "SteamAppId" );
 	// We call the SAPP library to get the path of the game.
 	// Which in our case is detemined by the env variable SteamAppId.
 	CFileSystemSearchProvider provider;
-	if ( !provider.Available() || !provider.BIsAppInstalled( p2ceAppID ) )
+	if ( !provider.Available() || !provider.BIsAppInstalled( gameAppID ) )
 	{
 		QMessageBox::critical( this, "Missing Game!", "P2CE is not installed on this machine or is otherwise unavailable." );
 		exit( EXIT_FAILURE );
 	}
 	char *installDir = new char[1048];
-	provider.GetAppInstallDir( p2ceAppID, installDir, 1048 );
-	m_installDir = QString( installDir );
+	provider.GetAppInstallDir( gameAppID, installDir, 1048 );
+	m_InstallDir = QString( installDir );
 	delete[] installDir;
 
 	// We create a QGridLayout to make the layout between the
@@ -102,7 +102,7 @@ CMainView::CMainView( QWidget *pParent ) :
 			pSDKListWidgetLayout->addWidget( pUrlButton );
 
 			// We create a callback function for handling the URL/Process trigger.
-			auto onProcessPushButtonPressedCallback = [&, contentObject]()
+			auto onProcessPushButtonPressedCallback = [this, contentObject]()
 			{
 				// We need to convert the arguments from a
 				// JSON variant list to a QStringList for the
@@ -117,9 +117,9 @@ CMainView::CMainView( QWidget *pParent ) :
 				// We then determine on if the request is a URL or process.
 				// Then execute it accordingly.
 				if ( contentObject["urlType"].toString() == "url" )
-					OpenUrl( contentObject["url"].toString().replace( "${INSTALLDIR}", m_installDir ) );
+					OpenUrl( contentObject["url"].toString().replace( "${INSTALLDIR}", m_InstallDir ) );
 				else if ( contentObject["urlType"].toString() == "process" )
-					OpenProcess( contentObject["url"].toString().replace( "${INSTALLDIR}", m_installDir ), argumentStringList.replaceInStrings( "${INSTALLDIR}", m_installDir ) );
+					OpenProcess( contentObject["url"].toString().replace( "${INSTALLDIR}", m_InstallDir ), argumentStringList.replaceInStrings( "${INSTALLDIR}", m_InstallDir ) );
 				else
 					qDebug() << "Unknown URL Type: " << contentObject["urlType"].toString();
 			};
@@ -172,4 +172,8 @@ void CMainView::OpenProcess( const QString &execName, const QStringList &params 
 	qInfo() << params;
 	auto pProcess = new QProcess( this );
 	pProcess->start( execName, params );
+}
+QString CMainView::GetInstallDir()
+{
+	return m_InstallDir;
 }

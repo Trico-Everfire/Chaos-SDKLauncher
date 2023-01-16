@@ -1,9 +1,4 @@
-//
-// Created by trico on 30-11-22.
-//
-
-#ifndef SDKLAUNCHER_FILEDOWNLOADER_H
-#define SDKLAUNCHER_FILEDOWNLOADER_H
+#pragma once
 
 #include <QByteArray>
 #include <QNetworkAccessManager>
@@ -29,5 +24,3 @@ private:
 	QNetworkAccessManager *m_pNetworkAccessManager;
 	QByteArray m_DownloadedData;
 };
-
-#endif // SDKLAUNCHER_FILEDOWNLOADER_H

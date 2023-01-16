@@ -60,9 +60,9 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 	// We then create the 5 buttons responsible for editing individual
 	// instances of executables/urls/categories.
 	pEditConfigurationLayout->addWidget( m_pEditList, 0, 0, 5, 1 );
-	pAddCurrentButton = new QPushButton( this );
-	pAddCurrentButton->setIcon( QIcon( ":/resource/add.png" ) );
-	pEditConfigurationLayout->addWidget( pAddCurrentButton, 0, 1, Qt::AlignTop | Qt::AlignRight );
+	m_pAddCurrentButton = new QPushButton( this );
+	m_pAddCurrentButton->setIcon( QIcon( ":/resource/add.png" ) );
+	pEditConfigurationLayout->addWidget( m_pAddCurrentButton, 0, 1, Qt::AlignTop | Qt::AlignRight );
 	auto pShiftUpButton = new QPushButton( this );
 	pShiftUpButton->setIcon( QIcon( ":/resource/arrowup.png" ) );
 	pEditConfigurationLayout->addWidget( pShiftUpButton, 1, 1, Qt::AlignTop | Qt::AlignRight );
@@ -382,9 +382,9 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 					}
 
 					if ( itemJSONContents["urlType"].toString() == "url" )
-						CMainView::OpenUrl( itemJSONContents["url"].toString().replace( "${INSTALLDIR}", pParentWidget->m_installDir ) );
+						CMainView::OpenUrl( itemJSONContents["url"].toString().replace( "${INSTALLDIR}", pParentWidget->GetInstallDir() ) );
 					else if ( itemJSONContents["urlType"].toString() == "process" )
-						pParentWidget->OpenProcess( itemJSONContents["url"].toString().replace( "${INSTALLDIR}", pParentWidget->m_installDir ), processArguments.replaceInStrings( "${INSTALLDIR}", pParentWidget->m_installDir ) );
+						pParentWidget->OpenProcess( itemJSONContents["url"].toString().replace( "${INSTALLDIR}", pParentWidget->GetInstallDir() ), processArguments.replaceInStrings( "${INSTALLDIR}", pParentWidget->GetInstallDir() ) );
 					else
 						qDebug() << "Unknown URL Type: " << itemJSONContents["urlType"].toString();
 				};
@@ -417,7 +417,7 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 
 	// We then use these callbacks.
 	connect( m_pEditList, &QListWidget::currentRowChanged, this, onCurrentRowChangedCallback );
-	connect( pAddCurrentButton, &QPushButton::pressed, this, onAddItemButtonPressedCallback );
+	connect( m_pAddCurrentButton, &QPushButton::pressed, this, onAddItemButtonPressedCallback );
 	connect( pShiftDownButton, &QPushButton::pressed, this, onShiftItemDownButtonPressedCallback );
 	connect( pEditButton, &QPushButton::pressed, this, onEditItemButtonPressedCallback );
 	connect( pShiftUpButton, &QPushButton::pressed, this, onShiftItemUpButtonPressedCallback );
@@ -557,7 +557,7 @@ CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 			 {
 				 if ( button->text() == "Apply" )
 				 {
-					 this->m_applyChanges = true;
+					 this->m_ApplyChanges = true;
 				 }
 				 this->close();
 			 } );
@@ -611,5 +611,5 @@ CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 
 bool CEditConfigPopup::shouldApplyChanges() const
 {
-	return this->m_applyChanges;
+	return this->m_ApplyChanges;
 }

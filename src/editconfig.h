@@ -13,25 +13,25 @@ namespace ui
 	// The main edit config dialog class
 	class CEditConfig : public QDialog
 	{
+		static QJsonArray commandLineParser( const QString &argList );
+	public:
+		CEditConfig( CMainView *parent );
+		QListWidget *m_pEditList;
+		QPushButton *m_pApplyButton;
+		QPushButton *m_pAddCurrentButton;
+	private:
 		enum Quotations
 		{
 			isNone = 0,
 			isSingleQuote,
 			isDoubleQuote
 		};
-		static QJsonArray commandLineParser( const QString &argList );
-
-	public:
-		CEditConfig( CMainView *parent );
-		QListWidget *m_pEditList;
-		QPushButton *m_pApplyButton;
-		QPushButton *pAddCurrentButton;
 	};
 
 	// The popup for config items we want to edit.
 	class CEditConfigPopup : public QDialog
 	{
-		bool m_applyChanges = false;
+		bool m_ApplyChanges = false;
 
 	public:
 		CEditConfigPopup( CEditConfig *parent );

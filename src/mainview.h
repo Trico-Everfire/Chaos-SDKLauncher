@@ -1,6 +1,6 @@
 #pragma once
 
-#include "zip_handler.h"
+#include "ziphandler.h"
 
 #include <QDebug>
 #include <QDesktopServices>
@@ -21,17 +21,15 @@ namespace ui
 	// This class is responsible for the main window of the application.
 	class CMainView : public QDialog
 	{
-		friend class CEditConfig;
-		friend class CModManager;
 		Q_OBJECT;
-
 	public:
 		CMainView( QWidget *pParent );
 		QListWidget *m_pListWidget;
 		static void OpenUrl( const QString &url );
 		void OpenProcess( const QString &execName, const QStringList &params );
+		QString GetInstallDir();
 
 	private:
-		QString m_installDir;
+		QString m_InstallDir;
 	};
 } // namespace ui

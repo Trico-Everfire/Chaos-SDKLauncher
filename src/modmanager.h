@@ -1,9 +1,4 @@
-//
-// Created by trico on 14-12-22.
-//
-
-#ifndef SDKLAUNCHER_MODMANAGER_H
-#define SDKLAUNCHER_MODMANAGER_H
+#pragma once
 
 #include "mainview.h"
 
@@ -11,7 +6,8 @@
 #include <QFileInfo>
 #include <QSplashScreen>
 
-using namespace ui;
+#define GIT_URL "https://codeload.github.com/ChaosInitiative/p2ce-mod-template/zip/refs/heads/main"
+
 namespace ui
 {
 	class CModManager : public QDialog
@@ -21,10 +17,9 @@ namespace ui
 
 	private:
 		void modCreationHandler();
-		static bool modZipHandler( const QFileInfo &zFile, QSplashScreen *sps, const QString &modName, const QString &modPath );
+		static bool modZipHandler( const QFileInfo &zFile, const QString &modName, const QString &modPath );
 		QLineEdit *m_pModNameLineEdit;
 		QLineEdit *m_pModPathLineEdit;
 		QPushButton *m_pCreateButton;
 	};
 } // namespace ui
-#endif // SDKLAUNCHER_MODMANAGER_H
