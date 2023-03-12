@@ -10,7 +10,7 @@
 #include <QTextEdit>
 namespace ui
 {
-	// The main edit config dialog class
+
 	class CEditConfig : public QDialog
 	{
 		static QJsonArray commandLineParser( const QString &argList );
@@ -28,7 +28,6 @@ namespace ui
 		};
 	};
 
-	// The popup for config items we want to edit.
 	class CEditConfigPopup : public QDialog
 	{
 		bool m_ApplyChanges = false;

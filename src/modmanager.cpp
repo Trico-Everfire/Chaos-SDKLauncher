@@ -8,7 +8,6 @@
 
 #include "editconfig.h"
 #include "filedownloader.h"
-#include "mz_compat.h"
 #include "ziphandler.h"
 
 #include <QDialogButtonBox>
@@ -209,10 +208,6 @@ void CModManager::modCreationHandler()
 
 				 if ( pEditConfigPopup->shouldApplyChanges() )
 				 {
-					 // We then apply the visuals of the item.
-					 // depending on the type, it'll receive JSON data.
-					 // it's either only the name and type,
-					 // name, type, icon and url, or name, type, url, icon and arguments.
 					 auto pNewListItem = new QListWidgetItem();
 					 pNewListItem->setText( pEditConfigPopup->m_pNameLineEdit->text() );
 					 pNewListItem->setIcon( QIcon() );
@@ -223,11 +218,6 @@ void CModManager::modCreationHandler()
 					 listItemJSONContents["name"] = pEditConfigPopup->m_pNameLineEdit->text();
 					 if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 2 )
 					 {
-						 // Categories are highlighted in bold to distinguish
-						 // them from buttons.
-						 // Provided they need the least care,
-						 // We do all what's needed and return here to
-						 // make things easier.
 						 auto listItemFont = pNewListItem->font();
 						 listItemFont.setBold( true );
 						 pNewListItem->setFont( listItemFont );
@@ -243,8 +233,6 @@ void CModManager::modCreationHandler()
 					 listItemJSONContents["urlType"] = "url";
 					 if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 0 )
 					 {
-						 // We need to convert the arguments from a
-						 // QString to a QStringList.
 						 auto jsonArgumentList = QJsonArray();
 						 foreach( auto listArgument, pEditConfigPopup->m_pArgumentsListTextEdit->toPlainText().split( " " ) )
 						 {
@@ -253,7 +241,7 @@ void CModManager::modCreationHandler()
 						 listItemJSONContents["urlType"] = "process";
 						 listItemJSONContents["args"] = jsonArgumentList;
 					 }
-					 // We then store the JSON data and call the list's row changed function.
+
 					 pNewListItem->setData( Qt::UserRole, listItemJSONContents );
 					 editCFG->m_pEditList->currentRowChanged( 0 );
 
@@ -264,9 +252,9 @@ void CModManager::modCreationHandler()
 				 }
 				 delete editCFG;
 
-				 // We alter the gameinfo.txt to reflect the mod's name.
+				 
 				 auto gameInfoFile = QFile( modPath + modName + "/gameinfo.txt" );
-				 // We need this particular read then write, ReadWrite doesn't appear to work.
+				 
 				 if ( gameInfoFile.open( QFile::ReadOnly ) )
 				 {
 					 QString gameInfoFileContent = QString( gameInfoFile.readAll() );
