@@ -18,7 +18,7 @@
 // 629 - Portal 2 Authoring Tools
 // 1400890 - P2CE SDK
 // 1802710 - Momentum Mod
-constexpr int APP_ID = 440000;
+constexpr const inline int APP_ID = 440000;
 
 #ifdef USE_STEAM
 // This function is called when steam shuts down.
@@ -52,6 +52,27 @@ int main( int argc, char **argv )
 	file.open( QFile::ReadOnly );
 	QString styleSheet = QLatin1String( file.readAll() );
 	qApp->setStyleSheet( styleSheet );
+
+	QPalette palette {};
+	palette.setColor( QPalette::Window, QColor( 49, 54, 59 ) );
+	palette.setColor( QPalette::WindowText, Qt::white );
+	palette.setColor( QPalette::Base, QColor( 27, 30, 32 ) );
+	palette.setColor( QPalette::AlternateBase, QColor( 49, 54, 59 ) );
+	palette.setColor( QPalette::ToolTipBase, Qt::black );
+	palette.setColor( QPalette::ToolTipText, Qt::white );
+	palette.setColor( QPalette::Text, Qt::white );
+	palette.setColor( QPalette::Button, QColor( 49, 54, 59 ) );
+	palette.setColor( QPalette::ButtonText, Qt::white );
+	palette.setColor( QPalette::BrightText, Qt::red );
+	palette.setColor( QPalette::Link, QColor( 42, 130, 218 ) );
+	palette.setColor( QPalette::Highlight, QColor( 42, 130, 218 ) );
+	palette.setColor( QPalette::HighlightedText, Qt::black );
+	palette.setColor( QPalette::Active, QPalette::Button, QColor( 49, 54, 59 ) );
+	palette.setColor( QPalette::Disabled, QPalette::ButtonText, Qt::darkGray );
+	palette.setColor( QPalette::Disabled, QPalette::WindowText, Qt::darkGray );
+	palette.setColor( QPalette::Disabled, QPalette::Text, Qt::darkGray );
+	palette.setColor( QPalette::Disabled, QPalette::Light, QColor( 49, 54, 59 ) );
+	qApp->setPalette( palette );
 
 	auto pDialog = new ui::CMainView( nullptr );
 	pDialog->setWindowTitle( "P2:CE SDK Launcher" );

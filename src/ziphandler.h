@@ -32,10 +32,10 @@ public:
 		return isValid;
 	}
 
-	CZipHandler(QString path);
+	CZipHandler(const QString& path);
 	Result Read( QByteArray &fileContents );
 	bool SkipFile();
-	QString GetFilename(bool *isutf8 );
+	QString GetFilename(bool *isUtf8 );
 	bool IsDir();
 	uint64_t GetFileSize();
 };

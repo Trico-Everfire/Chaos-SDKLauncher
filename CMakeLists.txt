@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(sdklauncher CXX)
+
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
+set(CMAKE_INSTALL_RPATH $ORIGIN)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(MZ_DECOMPRESS_ONLY ON)
@@ -14,6 +19,9 @@ if (UNIX)
     set(CMAKE_CXX_STANDARD 20)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
     set(QT_INCLUDE "$ENV{HOME}/Qt/6.4.1/gcc_64/include/")
+    if (NOT DEFINED QT_BASEDIR)
+        set(QT_BASEDIR "$ENV{HOME}/Qt/6.4.1/gcc_64/")
+    endif ()
 endif ()
 
 if (WIN32)
@@ -88,13 +96,43 @@ if (WIN32)
     # Set up the debugger so it can run the program without copying a million dlls
     set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_ENVIRONMENT "PATH=%PATH%;${QT_BASEDIR}/bin;")
 
-    # Copy the steam windows binary
+    # Copy the windows binaries.
+    configure_file("${QT_BASEDIR}/bin/Qt6Core.dll" "${CMAKE_BINARY_DIR}/Qt6Core.dll" COPYONLY)
+    configure_file("${QT_BASEDIR}/bin/Qt6Gui.dll" "${CMAKE_BINARY_DIR}/Qt6Gui.dll" COPYONLY)
+    configure_file("${QT_BASEDIR}/bin/Qt6Widgets.dll" "${CMAKE_BINARY_DIR}/Qt6Widgets.dll" COPYONLY)
+    configure_file("${QT_BASEDIR}/bin/Qt6Network.dll" "${CMAKE_BINARY_DIR}/Qt6Network.dll" COPYONLY)
+    configure_file("${STEAM_DIR}/openssl/libcrypto-1_1-x64.dll" "${CMAKE_BINARY_DIR}/libcrypto-1_1-x64.dll" COPYONLY)
+    configure_file("${STEAM_DIR}/openssl/libssl-1_1-x64.dll" "${CMAKE_BINARY_DIR}/libssl-1_1-x64.dll" COPYONLY)
+    configure_file("${QT_BASEDIR}/plugins/platforms/qwindows.dll" "${CMAKE_BINARY_DIR}/platforms/qwindows.dll" COPYONLY)
+    configure_file("${QT_BASEDIR}/plugins/platforms/qminimal.dll" "${CMAKE_BINARY_DIR}/platforms/qminimal.dll" COPYONLY)
+    configure_file("${QT_BASEDIR}/plugins/imageformats/qjpeg.dll" "${CMAKE_BINARY_DIR}/imageformats/qjpeg.dll" COPYONLY)
+    configure_file("${QT_BASEDIR}/plugins/tls/qschannelbackend.dll" "${CMAKE_BINARY_DIR}/tls/qschannelbackend.dll" COPYONLY)
+
     if (USE_STEAM)
         configure_file("${STEAM_DIR}/redistributable_bin/win64/steam_api64.dll" "${CMAKE_BINARY_DIR}/steam_api64.dll" COPYONLY)
     endif ()
+
 endif ()
 
-if (UNIX AND USE_STEAM)
-    configure_file("${STEAM_DIR}/redistributable_bin/linux64/libsteam_api.so" "${CMAKE_BINARY_DIR}/libsteam_api.so" COPYONLY)
+
+
+
+if (UNIX)
+    configure_file("${QT_BASEDIR}/lib/libQt6Core.so.6.4.1" "${CMAKE_BINARY_DIR}/libQt6Core.so.6.4.1" COPYONLY)
+    configure_file("${QT_BASEDIR}/lib/libQt6Gui.so.6.4.1" "${CMAKE_BINARY_DIR}/libQt6Gui.so.6.4.1" COPYONLY)
+    configure_file("${QT_BASEDIR}/lib/libQt6Widgets.so.6.4.1" "${CMAKE_BINARY_DIR}/libQt6Widgets.so.6.4.1" COPYONLY)
+    configure_file("${QT_BASEDIR}/lib/libQt6Network.so.6.4.1" "${CMAKE_BINARY_DIR}/libQt6Network.so.6.4.1" COPYONLY)
+    configure_file("${QT_BASEDIR}/lib/libicui18n.so.56" "${CMAKE_BINARY_DIR}/libicui18n.so.56" COPYONLY)
+    configure_file("${QT_BASEDIR}/lib/libicuuc.so.56" "${CMAKE_BINARY_DIR}/libicuuc.so.56" COPYONLY)
+    configure_file("${QT_BASEDIR}/lib/libicudata.so.56" "${CMAKE_BINARY_DIR}/libicudata.so.56" COPYONLY)
+    configure_file("${QT_BASEDIR}/plugins/imageformats/libqjpeg.so" "${CMAKE_BINARY_DIR}/imageformats/libqjpeg.so")
+    configure_file("${QT_BASEDIR}/plugins/tls/libqopensslbackend.so" "${CMAKE_BINARY_DIR}/tls/libqopensslbackend.so")
+    configure_file("${QT_BASEDIR}/plugins/platforms/libqminimal.so" "${CMAKE_BINARY_DIR}/platforms/libqminimal.so" COPYONLY)
+    configure_file("${QT_BASEDIR}/plugins/platforms/libqxcb.so" "${CMAKE_BINARY_DIR}/platforms/libqxcb.so" COPYONLY)
+
+    if (USE_STEAM)
+        configure_file("${STEAM_DIR}/redistributable_bin/linux64/libsteam_api.so" "${CMAKE_BINARY_DIR}/libsteam_api.so" COPYONLY)
+    endif ()
+
 endif ()
 

@@ -15,9 +15,8 @@ using namespace ui;
 CMainView::CMainView( QWidget *pParent ) :
 	QDialog( pParent )
 {
-	int gameAppID = qEnvironmentVariableIntValue( "SteamAppId" );
-	
-	
+	const int gameAppID = qEnvironmentVariableIntValue( "SteamAppId" );
+
 	CFileSystemSearchProvider provider;
 	if ( !provider.Available() || !provider.BIsAppInstalled( gameAppID ) )
 	{
@@ -28,107 +27,21 @@ CMainView::CMainView( QWidget *pParent ) :
 	char installDir[1048];
 	provider.GetAppInstallDir( gameAppID, installDir, 1048 );
 	m_InstallDir = QString( installDir );
-
-	
 	
 	auto pSDKLayout = new QGridLayout( this );
 	pSDKLayout->setObjectName( "SDKLayout" );
-
-	
-	
-	
 	
 	m_pListWidget = new QListWidget( this );
-	auto pSDKListWidgetLayout = new QVBoxLayout( m_pListWidget );
-	pSDKListWidgetLayout->setAlignment( Qt::AlignTop );
-	pSDKListWidgetLayout->setObjectName( "SDKItemLayout" );
+	m_pListWidget->setSpacing(2);
+
 	pSDKLayout->addWidget( m_pListWidget, 0, 0, 2, 1 );
 
-	
-	
-	
-	
-	QFile configFile( "./config.json" );
 	QJsonDocument JSONConfigDocument;
-	if ( !configFile.exists() && configFile.open( QFile::WriteOnly ) )
-	{
-		
-		JSONConfigDocument = defaultConfig();
-		configFile.write( JSONConfigDocument.toJson() );
-		configFile.close();
-	}
-	else if ( configFile.open( QFile::ReadOnly ) )
-	{
-		
-		JSONConfigDocument = QJsonDocument::fromJson( configFile.readAll() );
-		configFile.close();
-	}
-	else
-	{
+
+	if(!GetOrGenerateConfig("./config.json", JSONConfigDocument))
 		QMessageBox::critical( this, "Config Error", "Couldn't load config file" );
-		this->close();
-		return;
-	}
 
-	
-	
-	QJsonArray JSONConfig = JSONConfigDocument.array();
-	for ( auto it = JSONConfig.begin(); it != JSONConfig.end(); it++ )
-	{
-		
-		
-		auto HeaderObject = it->toObject();
-		auto pHeader = new QLabel( HeaderObject["header"].toString(), this );
-		pHeader->setObjectName( "Header" );
-		pSDKListWidgetLayout->addWidget( pHeader );
-
-		
-		QJsonArray contentArray = HeaderObject["content"].toArray();
-
-		for ( const auto &jsonContentObject : contentArray )
-		{
-			
-			
-			auto contentObject = jsonContentObject.toObject();
-
-			
-			
-			
-			auto *pUrlButton = new QPushButton( this );
-			pUrlButton->setIcon( QIcon( contentObject["icon"].toString() ) );
-			pUrlButton->setText( contentObject["name"].toString() );
-			pUrlButton->setObjectName( "MediaItem" );
-			pUrlButton->setProperty( "JSONData", contentObject );
-			pSDKListWidgetLayout->addWidget( pUrlButton );
-
-			
-			auto onProcessPushButtonPressedCallback = [this, contentObject]()
-			{
-				
-				
-				
-				auto argumentVariantList = contentObject["args"].toArray().toVariantList();
-				QStringList argumentStringList;
-				foreach( QVariant vArgumentItem, argumentVariantList )
-				{
-					argumentStringList << vArgumentItem.toString();
-				}
-
-				
-				
-				if ( contentObject["urlType"].toString() == "url" )
-					OpenUrl( contentObject["url"].toString().replace( "${INSTALLDIR}", m_InstallDir ) );
-				else if ( contentObject["urlType"].toString() == "process" )
-					OpenProcess( contentObject["url"].toString().replace( "${INSTALLDIR}", m_InstallDir ), argumentStringList.replaceInStrings( "${INSTALLDIR}", m_InstallDir ) );
-				else
-					qDebug() << "Unknown URL Type: " << contentObject["urlType"].toString();
-			};
-
-			connect( pUrlButton, &QPushButton::pressed, this, onProcessPushButtonPressedCallback );
-		}
-	}
-
-	
+	PopulateListWidget(JSONConfigDocument);
 	
 	auto pEditButton = new QPushButton( this );
 	pEditButton->setIcon( QIcon( ":/resource/edit.png" ) );
@@ -149,16 +62,109 @@ CMainView::CMainView( QWidget *pParent ) :
 		modManager->exec();
 	};
 
+	auto onElementClickedCallback = [this](QListWidgetItem* item)
+	{
+		auto contentObject = item->data(Qt::UserRole).toJsonObject();
+
+		auto argumentVariantList = contentObject["args"].toArray().toVariantList();
+		QStringList argumentStringList;
+		foreach( QVariant vArgumentItem, argumentVariantList )
+		{
+			argumentStringList << vArgumentItem.toString();
+		}
+
+		if ( contentObject["urlType"].toString() == "url" )
+			OpenUrl( contentObject["url"].toString().replace( "${INSTALLDIR}", m_InstallDir ) );
+		else if ( contentObject["urlType"].toString() == "process" )
+			OpenProcess( contentObject["url"].toString().replace( "${INSTALLDIR}", m_InstallDir ), argumentStringList.replaceInStrings( "${INSTALLDIR}", m_InstallDir ) );
+		else
+			qDebug() << "Unknown URL Type: " << contentObject["urlType"].toString();
+	};
+
 	pSDKLayout->setRowStretch( 1, 1 );
 
 	connect( pEditButton, &QPushButton::pressed, this, onEditConfigButtonPressedCallback );
 	connect( pNewModButton, &QPushButton::pressed, this, onNewModButtonPressedCallback );
+	connect( m_pListWidget, &QListWidget::itemClicked, this, onElementClickedCallback );
 
-	m_pListWidget->setFixedSize( pSDKListWidgetLayout->sizeHint() );
 	pSDKLayout->setAlignment( Qt::AlignTop );
 
+	this->resize(280, 360);
 	
 	this->setFocus( Qt::NoFocusReason );
+}
+
+bool CMainView::GetOrGenerateConfig(const QString &filePath, QJsonDocument &JSONConfigDocument )
+{
+	QFile configFile( filePath );
+	if ( !configFile.exists() && configFile.open( QFile::WriteOnly ) )
+	{
+		JSONConfigDocument = defaultConfig();
+		configFile.write( JSONConfigDocument.toJson() );
+		configFile.close();
+	}
+	else if ( configFile.open( QFile::ReadOnly ) )
+	{
+
+		JSONConfigDocument = QJsonDocument::fromJson( configFile.readAll() );
+		configFile.close();
+	}
+	else
+		return false;
+	return true;
+}
+
+void CMainView::PopulateListWidget(const QJsonDocument &JSONConfigDocument)
+{
+	QJsonArray JSONConfig = JSONConfigDocument.array();
+	for (const auto & it : JSONConfig)
+	{
+		auto HeaderObject = it.toObject();
+
+		auto pBaseItem = new QListWidgetItem(nullptr, WidgetItemType::Category);
+
+		pBaseItem->setText(HeaderObject["header"].toString());
+
+		auto itemFont = pBaseItem->font();
+		itemFont.setBold(true);
+		pBaseItem->setFont(itemFont);
+
+		pBaseItem->setFlags(Qt::NoItemFlags );
+		pBaseItem->setForeground(Qt::white);
+
+		auto pBaseItemWidget = new QWidget(this);
+
+		auto pSDKListWidgetItemtLayout = new QVBoxLayout( pBaseItemWidget );
+
+		pSDKListWidgetItemtLayout->setContentsMargins(0,18,0,0);
+
+		pBaseItem->setSizeHint( QSize(0,20) );
+
+		auto pHeader = new QLabel( pBaseItemWidget );
+
+		pHeader->setObjectName( "Header" );
+
+		pSDKListWidgetItemtLayout->addWidget( pHeader );
+
+		QJsonArray contentArray = HeaderObject["content"].toArray();
+
+		m_pListWidget->addItem(pBaseItem);
+		m_pListWidget->setItemWidget(pBaseItem,  pBaseItemWidget );
+
+		for ( const auto &jsonContentObject : contentArray )
+		{
+			auto contentObject = jsonContentObject.toObject();
+
+			auto pListWidgetItem = new QListWidgetItem(nullptr, WidgetItemType::Item);
+			pListWidgetItem->setIcon( QIcon( contentObject["icon"].toString() ) );
+			pListWidgetItem->setText( contentObject["name"].toString() );
+			pListWidgetItem->setData( Qt::UserRole, contentObject );
+
+			m_pListWidget->addItem(pListWidgetItem);
+		}
+
+
+	}
 }
 
 void CMainView::OpenUrl( const QString &url )

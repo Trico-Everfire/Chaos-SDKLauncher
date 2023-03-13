@@ -6,7 +6,7 @@
 #include <QFileInfo>
 #include <QSplashScreen>
 
-#define GIT_URL "https://codeload.github.com/ChaosInitiative/p2ce-mod-template/zip/refs/heads/main"
+#define GIT_URL "https://codeload.github.com/craftablescience/Portal2-Example-Mod/zip/refs/tags/v1.0"
 
 namespace ui
 {

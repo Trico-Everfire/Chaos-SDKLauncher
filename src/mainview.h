@@ -20,12 +20,21 @@ namespace ui
 {
 	class CMainView : public QDialog
 	{
-		Q_OBJECT;
+		Q_OBJECT
+	public:
+		enum WidgetItemType
+		{
+			Category = 0,
+			Item,
+		};
+
 	public:
 		CMainView( QWidget *pParent );
 		QListWidget *m_pListWidget;
 		static void OpenUrl( const QString &url );
 		void OpenProcess( const QString &execName, const QStringList &params );
+		static bool GetOrGenerateConfig( const QString &filePath, QJsonDocument &JSONConfigDocument );
+		void PopulateListWidget( const QJsonDocument &JSONConfigDocument );
 		QString GetInstallDir();
 
 	private:

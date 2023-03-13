@@ -14,38 +14,43 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 {
 	
 	setWindowTitle( "Edit Launcher Configuration" );
+
 	auto pEditConfigurationLayout = new QGridLayout( this );
+
 	m_pEditList = new QListWidget( this );
 	m_pEditList->setItemAlignment( Qt::AlignCenter );
 	
-	int listChildCount = parent->m_pListWidget->layout()->count();
+	int listChildCount = parent->m_pListWidget->count();
 	for ( int i = 0; i < listChildCount; i++ )
 	{
-
-		auto pMainWindowListItem = parent->m_pListWidget->layout()->itemAt( i );
-		if ( auto pMainWindowListLabel = dynamic_cast<QLabel *>( pMainWindowListItem->widget() ) )
+		auto pMainWindowListItem = parent->m_pListWidget->item(i);
+		if ( pMainWindowListItem->type() ==  CMainView::Category )
 		{
 			auto pListWidgetItem = new QListWidgetItem();
-			pListWidgetItem->setText( pMainWindowListLabel->text() );
+			pListWidgetItem->setText( pMainWindowListItem->text() );
+
 			auto listItemFont = pListWidgetItem->font();
 			listItemFont.setBold( true );
 			pListWidgetItem->setFont( listItemFont );
+
 			auto listItemContentObject = QJsonObject();
-			listItemContentObject["name"] = pMainWindowListLabel->text();
+			listItemContentObject["name"] = pMainWindowListItem->text();
 			listItemContentObject["urlType"] = "category";
 			pListWidgetItem->setData( Qt::UserRole, listItemContentObject );
+
 			m_pEditList->addItem( pListWidgetItem );
 		}
-		
-		
-		if ( auto pMainWindowListButton = dynamic_cast<QPushButton *>( pMainWindowListItem->widget() ) )
+
+		if ( pMainWindowListItem->type() ==  CMainView::Item )
 		{
 			auto pListWidgetItem = new QListWidgetItem();
-			pListWidgetItem->setText( pMainWindowListButton->text() );
-			pListWidgetItem->setIcon( pMainWindowListButton->icon() );
-			pListWidgetItem->setData( Qt::UserRole, pMainWindowListButton->property( "JSONData" ) );
+			pListWidgetItem->setText( pMainWindowListItem->text() );
+			pListWidgetItem->setIcon( pMainWindowListItem->icon() );
+			pListWidgetItem->setData( Qt::UserRole, pMainWindowListItem->data( Qt::UserRole ) );
+
 			m_pEditList->addItem( pListWidgetItem );
 		}
+
 	}
 	
 	pEditConfigurationLayout->setAlignment( Qt::AlignTop );
@@ -53,23 +58,33 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 	pEditConfigurationLayout->addWidget( m_pEditList, 0, 0, 5, 1 );
 	m_pAddCurrentButton = new QPushButton( this );
 	m_pAddCurrentButton->setIcon( QIcon( ":/resource/add.png" ) );
+
 	pEditConfigurationLayout->addWidget( m_pAddCurrentButton, 0, 1, Qt::AlignTop | Qt::AlignRight );
+
 	auto pShiftUpButton = new QPushButton( this );
 	pShiftUpButton->setIcon( QIcon( ":/resource/arrowup.png" ) );
+
 	pEditConfigurationLayout->addWidget( pShiftUpButton, 1, 1, Qt::AlignTop | Qt::AlignRight );
+
 	auto pEditButton = new QPushButton( this );
 	pEditButton->setIcon( QIcon( ":/resource/edit.png" ) );
+
 	pEditConfigurationLayout->addWidget( pEditButton, 2, 1, Qt::AlignTop | Qt::AlignRight );
+
 	auto pShiftDownButton = new QPushButton( this );
 	pShiftDownButton->setIcon( QIcon( ":/resource/arrowdown.png" ) );
+
 	pEditConfigurationLayout->addWidget( pShiftDownButton, 3, 1, Qt::AlignTop | Qt::AlignRight );
+
 	auto pRemoveCurrentButton = new QPushButton( this );
 	pRemoveCurrentButton->setIcon( QIcon( ":/resource/remove.png" ) );
+
 	pEditConfigurationLayout->addWidget( pRemoveCurrentButton, 4, 1, Qt::AlignTop | Qt::AlignRight );
 	
 	auto pDialogButtons = new QDialogButtonBox( this );
 	m_pApplyButton = pDialogButtons->addButton( "Apply", QDialogButtonBox::ButtonRole::ApplyRole );
 	pDialogButtons->addButton( "Cancel", QDialogButtonBox::ButtonRole::RejectRole );
+
 	pEditConfigurationLayout->addWidget( pDialogButtons, 5, 0, 1, 2, Qt::AlignTop | Qt::AlignLeft );
 	
 	auto onCurrentRowChangedCallback = [&]( int row )
@@ -92,21 +107,25 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 	
 	auto onAddItemButtonPressedCallback = [&]
 	{
-		
-		auto pCurrentItem = m_pEditList->currentItem();
+
 		auto pEditConfigPopup = new CEditConfigPopup( this );
 		pEditConfigPopup->exec();
+
 		if ( !pEditConfigPopup->shouldApplyChanges() )
 			return;
 		
 		auto pNewListItem = new QListWidgetItem();
 		pNewListItem->setText( pEditConfigPopup->m_pNameLineEdit->text() );
 		pNewListItem->setIcon( QIcon() );
+
 		if ( QFileInfo::exists( pEditConfigPopup->m_pIconPathLineEdit->text() ) )
 			pNewListItem->setIcon( QIcon( pEditConfigPopup->m_pIconPathLineEdit->text() ) );
 
+		auto pCurrentItem = m_pEditList->currentItem();
+
 		auto listItemJSONContents = QJsonObject();
 		listItemJSONContents["name"] = pEditConfigPopup->m_pNameLineEdit->text();
+
 		if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 2 )
 		{
 			
@@ -120,9 +139,11 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 			m_pEditList->insertItem( currentRow + 1, pNewListItem );
 			return;
 		}
+
 		listItemJSONContents["url"] = pEditConfigPopup->m_pUrlLineEdit->text();
 		listItemJSONContents["icon"] = pEditConfigPopup->m_pIconPathLineEdit->text();
 		listItemJSONContents["urlType"] = "url";
+
 		if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 0 )
 		{
 			auto jsonArgumentList = commandLineParser(pEditConfigPopup->m_pArgumentsListTextEdit->toPlainText());
@@ -136,6 +157,7 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 
 		int currentRow = pCurrentItem ? m_pEditList->row( pCurrentItem ) : 0;
 		m_pEditList->insertItem( currentRow + 1, pNewListItem );
+
 	};
 	
 	auto onShiftItemDownButtonPressedCallback = [&]
@@ -200,11 +222,6 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 		newListItemJSONContents["name"] = pEditConfigPopup->m_pNameLineEdit->text();
 		if ( pEditConfigPopup->m_pTypeComboBox->currentIndex() == 2 )
 		{
-			
-			
-			
-			
-			
 			auto listItemFont = pSelectedItem->font();
 			listItemFont.setBold( true );
 			pSelectedItem->setFont( listItemFont );
@@ -227,8 +244,6 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 		pSelectedItem->setData( Qt::UserRole, newListItemJSONContents );
 		m_pEditList->currentRowChanged( 0 );
 	};
-
-	
 	
 	auto onShiftItemUpButtonPressedCallback = [&]
 	{
@@ -243,7 +258,6 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 			m_pEditList->setCurrentRow( currentRow - 1 );
 		}
 	};
-
 	
 	auto onRemoveItemButtonPressedCallback = [&]
 	{
@@ -255,37 +269,21 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 		delete item;
 		m_pEditList->currentRowChanged( 0 );
 	};
-
-	
-	
 	
 	auto onDialogButtonsPressedCallback = [&]( QAbstractButton *button )
 	{
 		if ( button->text() == "Apply" )
 		{
-			
-			
-			
 			auto pParentWidget = dynamic_cast<CMainView *>( this->parentWidget() );
-			auto pMainListLayout = pParentWidget->m_pListWidget->layout();
+			auto pMainListLayout = pParentWidget->m_pListWidget;
+
 			while ( pMainListLayout->count() > 0 )
 			{
-				auto pMainListLayoutItem = pMainListLayout->takeAt( 0 );
-				auto pMainListLayoutItemWidget = pMainListLayoutItem->widget();
+				auto pMainListLayoutItem = pMainListLayout->item( 0 );
+				auto pMainListLayoutItemWidget = pMainListLayout->itemWidget(pMainListLayoutItem);
 				delete pMainListLayoutItemWidget;
 				delete pMainListLayoutItem;
 			}
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			auto configJSONDocument = QJsonDocument();
-			auto mainJSONArray = QJsonArray();
 
 			QJsonArray *pCurrentCategory;
 			auto jsonArrayVector = QVector<QPair<QString, QJsonArray *>>();
@@ -296,52 +294,17 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 				auto itemJSONContents = pListItem->data( Qt::UserRole ).toJsonObject();
 				if ( itemJSONContents["urlType"] == "category" )
 				{
-					
-					
-					
-					
-					
 					pCurrentCategory = new QJsonArray();
 					jsonArrayVector.append( QPair<QString, QJsonArray *>( itemJSONContents["name"].toString(), pCurrentCategory ) );
-					auto pHeader = new QLabel( itemJSONContents["name"].toString(), this );
-					pHeader->setObjectName( "Header" );
-					pMainListLayout->addWidget( pHeader );
 					continue;
 				}
-				
-				
+
 				pCurrentCategory->append( itemJSONContents );
-				auto *pItemButton = new QPushButton( this );
-				pItemButton->setIcon( QIcon( itemJSONContents["icon"].toString() ) );
-				pItemButton->setText( itemJSONContents["name"].toString() );
-				pItemButton->setObjectName( "MediaItem" );
-				pItemButton->setProperty( "JSONData", itemJSONContents );
-				pMainListLayout->addWidget( pItemButton );
 
-				
-				auto onItemButtonPushedCallback = [&, itemJSONContents, pParentWidget]
-				{
-					
-					
-					
-					auto variantArgumentList = itemJSONContents["args"].toArray().toVariantList();
-					QStringList processArguments;
-
-					foreach( QVariant vItem, variantArgumentList )
-					{
-						processArguments << vItem.toString();
-					}
-
-					if ( itemJSONContents["urlType"].toString() == "url" )
-						CMainView::OpenUrl( itemJSONContents["url"].toString().replace( "${INSTALLDIR}", pParentWidget->GetInstallDir() ) );
-					else if ( itemJSONContents["urlType"].toString() == "process" )
-						pParentWidget->OpenProcess( itemJSONContents["url"].toString().replace( "${INSTALLDIR}", pParentWidget->GetInstallDir() ), processArguments.replaceInStrings( "${INSTALLDIR}", pParentWidget->GetInstallDir() ) );
-					else
-						qDebug() << "Unknown URL Type: " << itemJSONContents["urlType"].toString();
-				};
-
-				connect( pItemButton, &QPushButton::pressed, this, onItemButtonPushedCallback );
 			}
+
+			auto configJSONDocument = QJsonDocument();
+			auto mainJSONArray = QJsonArray();
 
 			for ( const auto &jsonArrayStringPair : jsonArrayVector )
 			{
@@ -349,25 +312,33 @@ CEditConfig::CEditConfig( CMainView *parent ) :
 				headerObject["header"] = jsonArrayStringPair.first;
 				headerObject["content"] = *jsonArrayStringPair.second;
 				mainJSONArray.append( headerObject );
-				
-				
+
 				delete jsonArrayStringPair.second;
 			}
 			configJSONDocument.setArray( mainJSONArray );
+
 			auto configFile = QFile( "./config.json" );
 			configFile.open( QFile::WriteOnly );
 			configFile.write( configJSONDocument.toJson() );
 			configFile.close();
+
+			pParentWidget->PopulateListWidget(configJSONDocument);
 		}
 		this->close();
 	};
 	
 	connect( m_pEditList, &QListWidget::currentRowChanged, this, onCurrentRowChangedCallback );
+
 	connect( m_pAddCurrentButton, &QPushButton::pressed, this, onAddItemButtonPressedCallback );
+
 	connect( pShiftDownButton, &QPushButton::pressed, this, onShiftItemDownButtonPressedCallback );
+
 	connect( pEditButton, &QPushButton::pressed, this, onEditItemButtonPressedCallback );
+
 	connect( pShiftUpButton, &QPushButton::pressed, this, onShiftItemUpButtonPressedCallback );
+
 	connect( pRemoveCurrentButton, &QPushButton::pressed, this, onRemoveItemButtonPressedCallback );
+
 	connect( pDialogButtons, &QDialogButtonBox::clicked, this, onDialogButtonsPressedCallback );
 
 	pEditConfigurationLayout->setRowStretch( 4, 1 );
@@ -445,46 +416,55 @@ CEditConfigPopup::CEditConfigPopup( CEditConfig *parent ) :
 	auto pConfigPopupLayout = new QGridLayout( this );
 	pConfigPopupLayout->setAlignment( Qt::AlignTop | Qt::AlignRight );
 
-	auto pNameLabel = new QLabel( this );
-	pNameLabel->setText( "Name:" );
+	auto pNameLabel = new QLabel( "Name:", this );
+
 	pConfigPopupLayout->addWidget( pNameLabel, 0, 0 );
+
 	m_pNameLineEdit = new QLineEdit( this );
+
 	pConfigPopupLayout->addWidget( m_pNameLineEdit, 0, 1 );
 
-	auto pTypeLabel = new QLabel( this );
-	pTypeLabel->setText( "Type:" );
+	auto pTypeLabel = new QLabel( "Type:", this );
+
 	pConfigPopupLayout->addWidget( pTypeLabel, 0, 2 );
+
 	m_pTypeComboBox = new QComboBox( this );
 	m_pTypeComboBox->addItem( "Executable" );
 	m_pTypeComboBox->addItem( "Url" );
 	m_pTypeComboBox->addItem( "Category" );
+
 	pConfigPopupLayout->addWidget( m_pTypeComboBox, 0, 3 );
 
-	auto pUrlLabel = new QLabel( this );
-	pUrlLabel->setText( "Exec:" );
+	auto pUrlLabel = new QLabel( "Exec:", this );
+
 	pConfigPopupLayout->addWidget( pUrlLabel, 1, 0 );
+
 	m_pUrlLineEdit = new QLineEdit( this );
+
 	pConfigPopupLayout->addWidget( m_pUrlLineEdit, 1, 1 );
 
-	auto pIconLabel = new QLabel( this );
-	pIconLabel->setText( "Icon:" );
+	auto pIconLabel = new QLabel( "Icon:", this );
+
 	pConfigPopupLayout->addWidget( pIconLabel, 1, 2 );
+
 	m_pIconPathLineEdit = new QLineEdit( this );
+
 	pConfigPopupLayout->addWidget( m_pIconPathLineEdit, 1, 3 );
 
-	auto pArgumentsLabel = new QLabel( this );
-	pArgumentsLabel->setText( "Arg:" );
+	auto pArgumentsLabel = new QLabel( "Args:", this );
+
 	pConfigPopupLayout->addWidget( pArgumentsLabel, 2, 0 );
+
 	m_pArgumentsListTextEdit = new QTextEdit( this );
 	m_pArgumentsListTextEdit->setFixedHeight( m_pIconPathLineEdit->sizeHint().height() );
+
 	pConfigPopupLayout->addWidget( m_pArgumentsListTextEdit, 2, 1, 1, 3 );
 
 	auto pAcceptCancelButtonBox = new QDialogButtonBox( this );
 	m_pApplyButton = pAcceptCancelButtonBox->addButton( "Apply", QDialogButtonBox::ButtonRole::ApplyRole );
 	pAcceptCancelButtonBox->addButton( "Cancel", QDialogButtonBox::ButtonRole::RejectRole );
-	pConfigPopupLayout->addWidget( pAcceptCancelButtonBox, 3, 0, 1, 4, Qt::AlignLeft );
 
-	
+	pConfigPopupLayout->addWidget( pAcceptCancelButtonBox, 3, 0, 1, 4, Qt::AlignLeft );
 	
 	connect( m_pNameLineEdit, &QLineEdit::textChanged, this, [&]( const QString &text )
 			 {

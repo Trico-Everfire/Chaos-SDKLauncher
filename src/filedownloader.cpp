@@ -6,19 +6,17 @@ CFileDownloader::CFileDownloader( const QUrl &imageUrl, QObject *parent ) :
 	QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
 	sslConfig.setProtocol( QSsl::TlsV1_2 );
 	m_pNetworkAccessManager = new QNetworkAccessManager();
-	connect(
-		m_pNetworkAccessManager, SIGNAL( finished( QNetworkReply * ) ),
-		this, SLOT( fileDownloaded( QNetworkReply * ) ) );
+
+	connect( m_pNetworkAccessManager, SIGNAL( finished( QNetworkReply * ) ), this, SLOT( fileDownloaded( QNetworkReply * ) ) );
 
 	QNetworkRequest networkRequest;
 	networkRequest.setSslConfiguration( sslConfig );
 	networkRequest.setUrl( imageUrl );
+
 	m_pNetworkAccessManager->get( networkRequest );
 }
 
-CFileDownloader::~CFileDownloader()
-{
-}
+CFileDownloader::~CFileDownloader() = default;
 
 void CFileDownloader::fileDownloaded( QNetworkReply *pReply )
 {

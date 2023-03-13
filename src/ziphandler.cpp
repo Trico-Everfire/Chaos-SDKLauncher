@@ -7,19 +7,19 @@ CZipHandler::Result CZipHandler::Read( QByteArray &fileContents )
 		return Result::ZIPPER_RESULT_ERROR;
 
 	std::array<unsigned char, BUF_SIZE> tbuf {};
-	int red;
-	int ret;
 
 	if ( zfile == nullptr )
 	{
 		return Result::ZIPPER_RESULT_ERROR;
 	}
 
-	ret = unzOpenCurrentFile( zfile );
+	int ret = unzOpenCurrentFile( zfile );
 	if ( ret != UNZ_OK )
 	{
 		return Result::ZIPPER_RESULT_ERROR;
 	}
+
+	int red;
 
 	while ( ( red = unzReadCurrentFile( zfile, tbuf.data(), BUF_SIZE ) ) > 0 )
 	{
@@ -42,7 +42,7 @@ CZipHandler::Result CZipHandler::Read( QByteArray &fileContents )
 	return Result::ZIPPER_RESULT_SUCCESS;
 }
 
-QString CZipHandler::GetFilename( bool *isutf8 )
+QString CZipHandler::GetFilename( bool *isUtf8 )
 {
 	if ( !isValid )
 		return {};
@@ -58,8 +58,8 @@ QString CZipHandler::GetFilename( bool *isutf8 )
 	if ( ret != UNZ_OK )
 		return {};
 
-	if ( isutf8 != nullptr )
-		*isutf8 = ( finfo.flag & ( 1 << 11 ) ) != 0;
+	if ( isUtf8 != nullptr )
+		*isUtf8 = ( finfo.flag & ( 1 << 11 ) ) != 0;
 
 	return { name.data() };
 }
@@ -100,19 +100,19 @@ uint64_t CZipHandler::GetFileSize()
 	if ( !isValid )
 		return -1;
 
-	unz_file_info64 finfo;
+	unz_file_info64 fInfo;
 	int ret;
 
 	if ( zfile == nullptr )
 		return 0;
 
-	ret = unzGetCurrentFileInfo64( zfile, &finfo, nullptr, 0, nullptr, 0, nullptr, 0 );
+	ret = unzGetCurrentFileInfo64( zfile, &fInfo, nullptr, 0, nullptr, 0, nullptr, 0 );
 	if ( ret != UNZ_OK )
 		return 0;
-	return finfo.uncompressed_size;
+	return fInfo.uncompressed_size;
 }
 
-CZipHandler::CZipHandler( QString path )
+CZipHandler::CZipHandler( const QString& path )
 {
 	zfile = unzOpen64( path.toStdString().c_str() );
 
